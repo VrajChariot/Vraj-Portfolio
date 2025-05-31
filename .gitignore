@@ -4,3 +4,6 @@
 # Tailwind CSS build output
 public/output.css
 .vercel
+
+# Node.js dependencies
+node_modules/
