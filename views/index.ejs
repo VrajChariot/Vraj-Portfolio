@@ -450,12 +450,12 @@
         <p class="text-center">© 2025 Vraj Shah. Made with ❤️ and lots of ☕️</p>
     </footer>
 
-    <div id="toast"
+    <div id="toast"  
         class="toast fixed top-17 right-8 bg-accent text-primary-bg py-4 px-8 rounded-lg font-semibold transform translate-x-[400px] transition-transform duration-300 ease-in-out z-[1000]">
         Message sent successfully! 🚀</div>
     
 
-    <script type="module" src="/analytics.js"></script>
+    <script async defer src="/_vercel/insights/script.js"></script>
     <script>
         // Update the toggleMobileMenu function
         function toggleMobileMenu() {
@@ -466,7 +466,7 @@
                 // Open menu
                 mobileMenu.classList.remove('hidden');
                 setTimeout(() => {
-                    mobileMenu.classList.remove('translate-x-full');
+                    mobileMenu.classList.remove('translate-x-full');+
                     mobileMenu.classList.add('translate-x-0');
                 }, 10);
                 body.style.overflow = 'hidden'; // Prevent background scrolling when menu is open
