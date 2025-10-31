@@ -309,8 +309,8 @@
             <!-- <div class="projects-grid grid grid-rows-1 gap-6 overflow-x-scroll scrollbar-hide"> -->
                 <% if (typeof projects !== 'undefined' && projects.length > 0) { %>
                     <% projects.forEach(function(project) { %>
-                        <div class="project-card group bg-gradient-to-br from-glass-bg to-[rgba(255,255,255,0.02)] backdrop-blur-xl border border-glass-border rounded-3xl flex flex-col justify-between lg:h-[345px] sm:h-[300px] transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer overflow-hidden md:max-h-400px relative shadow-project-card hover:-translate-y-4 hover:rotate-[5deg] hover:shadow-project-card-hover hover:border-accent/[0.4] before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1 before:bg-gradient-to-r before:from-accent before:to-accent-darker before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300 before:ease-in-out">
-                            <div class="h-[50%] md:h-[60%] gap-2.5 project-header p-8 pb-8 border-b border-white/[0.05] flex flex-col justify-between overflow-scroll">
+                        <div class="project-card group bg-gradient-to-br from-glass-bg to-[rgba(255,255,255,0.02)] backdrop-blur-xl border border-glass-border rounded-3xl flex flex-col transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer overflow-hidden relative shadow-project-card touch-pan-y md:hover:-translate-y-4 md:hover:rotate-[3deg] md:hover:shadow-project-card-hover md:hover:border-accent/[0.4] before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-1 before:bg-gradient-to-r before:from-accent before:to-accent-darker before:opacity-0 md:group-hover:before:opacity-100 before:transition-opacity before:duration-300 before:ease-in-out">
+                            <div class="project-header p-6 sm:p-8 border-b border-white/[0.05] flex flex-col gap-4">
                                 <h3 class="project-title text-2xl font-bold text-accent flex items-center gap-2">
                                     <span class="text-xs opacity-70">▶</span>
                                     <%= project.title %>
@@ -319,15 +319,15 @@
                                     <%= project.ProjectDesc %>
                                 </p>
                             </div>
-                            <div class="project-tags project-body pl-5 pr-5 pt-0 flex gap-3 overflow-x-scroll scrollbar-hide">
+                            <div class="project-tags project-body px-5 sm:px-6 py-4 flex flex-wrap md:flex-nowrap gap-2 md:gap-3 overflow-x-auto md:overflow-visible scrollbar-hide">
                                 <% project.techStack.forEach(function(tech) { %>
                                     <span class="project-tag flex justify-center items-center relative min-w-[70px] overflow-hidden py-2 px-4 bg-accent/[0.08] border border-accent/[0.2] rounded-full text-xs text-accent font-medium transition-all duration-300 ease-in-out hover:bg-accent/[0.15] hover:border-accent/[0.4] hover: project-card-shine">
                                         <%= tech %>
                                     </span>
                                 <% }); %>
                             </div>
-                            <div class="project-body p-5 pt-0">
-                                <div class="project-links flex gap-4">
+                            <div class="project-body px-5 sm:px-6 pb-6 pt-0">
+                                <div class="project-links flex flex-col sm:flex-row gap-3 sm:gap-4">
                                     <a href="<%= project.LiveDemo %>" class="project-link primary flex-1 py-3.5 px-7 bg-accent border-2 border-accent text-primary-bg rounded-full font-semibold transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] text-center relative overflow-hidden text-sm uppercase tracking-wider z-0 hover:bg-accent-darker hover:shadow-accent-lg hover:-translate-y-0.5 before:content-[''] before:absolute before:top-0 before:left-[-100%] before:w-full before:h-full before:bg-accent-darker before:transition-all before:duration-300 before:ease-in-out before:-z-[1] hover:before:left-0">
                                         Live Demo
                                     </a>
