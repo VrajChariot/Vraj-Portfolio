@@ -104,10 +104,17 @@
     color: var(--color-ink);
   }
 
-  /* The open panel repeats the stack as the interactive key, so the head copy steps aside
-     and only its label stays, hanging above the key. */
+  /* The open panel repeats the stack as the interactive key, so the head copy steps aside:
+     on desktop it fades and only its label stays, hanging above the key; on narrow
+     screens, where the key sits below the text, it leaves the layout. */
   .js .work-row.is-open .work-row__stack {
     opacity: 0;
+  }
+
+  @media (width < 48rem) {
+    .js .work-row.is-open .work-row__stack {
+      display: none;
+    }
   }
 
   .work-row__key-label {
