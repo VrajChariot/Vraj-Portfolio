@@ -8,6 +8,8 @@
   --xp-gutter: 0.875rem;
   --xp-line: 1.5px;
   --xp-branch-line: 1px;
+  /* Education reads as a separate line of history: ink, against the ultra of work. */
+  --xp-branch-color: var(--color-ink);
   /* Branch curves use a 40-unit-wide viewBox; this keeps their stroke near --xp-branch-line. */
   --xp-curve-stroke: 1.67;
   /* Where the drawing pen sits: 60% down the viewport, expressed as a view-timeline offset. */
@@ -160,7 +162,7 @@
 
   path {
     fill: none;
-    stroke: var(--color-ultra);
+    stroke: var(--xp-branch-color);
     stroke-width: var(--xp-curve-stroke);
     stroke-dasharray: 1;
     stroke-dashoffset: 0;
@@ -173,14 +175,14 @@
 
   left: calc(var(--xp-branch-x) - var(--xp-branch-line) / 2);
   width: var(--xp-branch-line);
-  background: var(--color-ultra);
+  background: var(--xp-branch-color);
   transform-origin: top;
 }
 
 /* What has not happened yet is dashed and short: a direction, not a claim about the scale. */
 .xp-projection {
   left: calc(var(--xp-branch-x) - var(--xp-branch-line) / 2);
-  border-left: var(--xp-branch-line) dashed var(--color-ultra);
+  border-left: var(--xp-branch-line) dashed var(--xp-branch-color);
 }
 
 .xp-projection-label {
@@ -293,7 +295,7 @@
     z-index: 2;
     width: 0.5625rem;
     height: 0.5625rem;
-    border: 1.5px solid var(--color-ultra);
+    border: 1.5px solid var(--xp-branch-color);
     background: var(--color-paper);
   }
 }
