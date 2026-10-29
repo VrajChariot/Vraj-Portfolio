@@ -1,14 +1,79 @@
-<section id="skills" class="wrap py-24" aria-labelledby="skills-title">
+<%
+    const inline = (source) => source.id === 'colophon' ? 'this site' : source.label;
+    const sentence = (labels) => labels.length < 2 ? labels.join('') : labels.slice(0, -1).join(', ') + ' and ' + labels[labels.length - 1];
+    const skillCount = {};
+    skillGroups.forEach((group) => group.skills.forEach((skill) => skill.evidence.forEach((source) => {
+        skillCount[source.id] = (skillCount[source.id] || 0) + 1;
+    })));
+    const sourceGroups = [
+        { label: 'Projects', sources: projects.map((p) => ({ id: p.id, label: p.name })) },
+        { label: 'Roles', sources: experience.map((e) => ({ id: e.id, label: e.companyShort })) },
+        { label: 'This site', sources: [{ id: 'colophon', label: 'How this page is built' }] },
+    ]
+        .map((group) => ({ ...group, sources: group.sources.filter((source) => skillCount[source.id]) }))
+        .filter((group) => group.sources.length);
+%>
+<section id="skills" class="wrap py-24 lg:py-32" aria-labelledby="skills-title">
     <h2 id="skills-title" class="heading-section">Skills</h2>
-    <div class="mt-12 space-y-10">
-        <% skillGroups.forEach(function (group) { %>
-            <div>
-                <h3 class="font-display text-2xl"><%= group.label %></h3>
-                <p class="text-steel"><%= group.summary %></p>
-                <ul class="mt-4 flex flex-wrap gap-3">
-                    <% group.skills.forEach(function (skill) { %><li id="<%= skill.id %>"><%= skill.name %></li><% }); %>
-                </ul>
+    <p class="mt-6 max-w-[62ch] text-lg text-steel">
+        The stack from the model down to the hardware. The number beside each skill counts the projects and roles that use it; hover, focus or tap a skill to see which.
+    </p>
+
+    <div class="skills-field mt-16" data-skills-field>
+        <svg class="skills-wires" aria-hidden="true" focusable="false" data-skills-wires></svg>
+
+        <div class="skills-strata">
+            <% skillGroups.forEach(function (group) { %>
+                <div class="skills-stratum" id="skills-<%= group.id %>">
+                    <div>
+                        <h3 class="font-display text-2xl font-medium tracking-tight"><%= group.label %></h3>
+                        <p class="mt-1 max-w-[28ch] text-steel"><%= group.summary %></p>
+                    </div>
+                    <ul class="skills-list" role="list">
+                        <% group.skills.forEach(function (skill) { %>
+                            <li class="skills-item">
+                                <% if (skill.evidence.length) { %>
+                                    <button
+                                        type="button"
+                                        class="skill"
+                                        id="<%= skill.id %>"
+                                        data-skill
+                                        data-evidence="<%= skill.evidence.map((source) => source.id).join(' ') %>"
+                                        data-cursor="Trace"
+                                        aria-expanded="false"
+                                        aria-controls="<%= skill.id %>-evidence"
+                                        aria-describedby="<%= skill.id %>-used"
+                                    ><%= skill.name %><span class="skill-count" aria-hidden="true"><%= skill.evidence.length %></span></button>
+                                    <span id="<%= skill.id %>-used" class="sr-only">Used in <%= sentence(skill.evidence.map(inline)) %>.</span>
+                                    <p id="<%= skill.id %>-evidence" class="skill-evidence" hidden>
+                                        Used in <% skill.evidence.forEach(function (source, index) { %><%= index === 0 ? '' : index === skill.evidence.length - 1 ? ' and ' : ', ' %><a href="#<%= source.id %>"><%= inline(source) %></a><% }); %>
+                                    </p>
+                                <% } else { %>
+                                    <span class="skill is-bare" id="<%= skill.id %>"><%= skill.name %></span>
+                                <% } %>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            <% }); %>
+        </div>
+
+        <aside class="skills-sources" aria-labelledby="skills-sources-title">
+            <div class="skills-panel" data-skills-panel>
+                <h3 id="skills-sources-title" class="font-display text-2xl font-medium tracking-tight">Where they are used</h3>
+                <% sourceGroups.forEach(function (group) { %>
+                    <h4 class="mt-8 text-sm text-steel"><%= group.label %></h4>
+                    <ul class="mt-2" role="list">
+                        <% group.sources.forEach(function (source) { %>
+                            <li class="skills-source-item">
+                                <a class="skills-source" href="#<%= source.id %>" data-source="<%= source.id %>" data-cursor="Read"><%= source.label %></a>
+                                <span class="whitespace-nowrap text-sm text-steel"><%= skillCount[source.id] %> <%= skillCount[source.id] === 1 ? 'skill' : 'skills' %></span>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% }); %>
             </div>
-        <% }); %>
+        </aside>
     </div>
 </section>
+<script type="module" src="/js/sections/skills.js"></script>

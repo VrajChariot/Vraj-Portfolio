@@ -1,1 +1,171 @@
 /* Skills: stack layers cross-referenced with evidence. */
+
+.skills-field {
+  position: relative;
+  display: grid;
+  gap: 4rem;
+
+  @media (width >= 64rem) {
+    grid-template-columns: minmax(0, 1fr) 17rem;
+    column-gap: clamp(4rem, 7vw, 8rem);
+  }
+}
+
+/* Connector layer: spans the whole field, sits behind the text. */
+.skills-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--color-ultra);
+  stroke-width: 1;
+  stroke-linecap: round;
+
+  & circle {
+    fill: var(--color-ultra);
+    stroke: none;
+  }
+}
+
+.skills-strata,
+.skills-sources {
+  position: relative;
+  z-index: 1;
+}
+
+/* One stratum per layer of the stack, top (model) to bottom (hardware). */
+.skills-stratum {
+  display: grid;
+  gap: 1.25rem;
+  padding-block: 2rem 2.25rem;
+  border-top: 1px solid var(--color-rule);
+
+  &:last-child {
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  @media (width >= 48rem) {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    column-gap: 3rem;
+  }
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  align-content: start;
+  column-gap: 1.5rem;
+  row-gap: 0.25rem;
+
+  @media (width >= 48rem) {
+    column-gap: 2rem;
+    row-gap: 0.5rem;
+  }
+}
+
+/* An open skill takes its own row so its evidence line never squeezes neighbours. */
+.skills-item:has([aria-expanded="true"]) {
+  flex-basis: 100%;
+}
+
+.skill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+  padding-block: 0.25rem;
+  font-size: var(--text-lg);
+  line-height: 1.3;
+  color: var(--color-ink);
+  /* Opaque so connectors read as passing behind the words. */
+  background: var(--color-paper);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.3s var(--ease-in-out-quart);
+
+  @media (width >= 48rem) {
+    font-size: var(--text-xl);
+  }
+
+  &:hover,
+  &[aria-expanded="true"],
+  &.is-lit {
+    color: var(--color-ultra);
+  }
+
+  /* The lit skill lets its own connector show through as an underline. */
+  &.is-lit {
+    background: transparent;
+  }
+
+  &.is-bare {
+    color: var(--color-steel);
+    cursor: default;
+  }
+}
+
+.skill-count {
+  position: relative;
+  top: -0.55em;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-steel);
+  transition: color 0.3s var(--ease-in-out-quart);
+}
+
+.skill-evidence {
+  padding-bottom: 0.5rem;
+  font-size: var(--text-sm);
+  color: var(--color-steel);
+
+  & a {
+    color: var(--color-ultra);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
+/* Evidence panel: sticks beside the strata on wide screens. */
+.skills-panel {
+  @media (width >= 64rem) {
+    position: sticky;
+    top: 7rem;
+  }
+}
+
+.skills-source-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.4rem;
+  border-bottom: 1px solid var(--color-rule);
+  transition: opacity 0.3s var(--ease-in-out-quart);
+}
+
+.skills-source {
+  font-size: var(--text-lg);
+  transition: color 0.3s var(--ease-in-out-quart);
+
+  &:hover,
+  &.is-lit {
+    color: var(--color-ultra);
+  }
+}
+
+/* Tracing: everything not connected to the active item recedes to a tint of ink on paper. */
+.skills-field.is-tracing {
+  --faint: color-mix(in srgb, var(--color-ink) 30%, var(--color-paper));
+
+  & .skill:not(.is-lit),
+  & .skill:not(.is-lit) .skill-count {
+    color: var(--faint);
+  }
+
+  & .skills-source-item:not(:has(.is-lit)) {
+    opacity: 0.32;
+  }
+}
