@@ -1,63 +1,81 @@
-/* Experience: chronological signal trace. Lengths along the axis are months × --xp-month. */
+/* Experience & education: chronological signal trace with education as a branch.
+   Lengths along the axis are months × --xp-month, measured from the top of .xp-timeline. */
 .xp {
   --xp-month: 1.25rem;
   --xp-ticks: 2.5rem;
   --xp-trace: 2.5rem;
+  --xp-lane: 0rem;
   --xp-gutter: 0.875rem;
   --xp-line: 1.5px;
+  --xp-branch-line: 1px;
+  /* Branch curves use a 40-unit-wide viewBox; this keeps their stroke near --xp-branch-line. */
+  --xp-curve-stroke: 1.67;
   /* Where the drawing pen sits: 60% down the viewport, expressed as a view-timeline offset. */
   --xp-pen-offset: 40vh;
 
   padding-block: 6rem;
+
+  &.has-branch {
+    --xp-ticks: 2.25rem;
+    --xp-trace: 1.75rem;
+    --xp-lane: 1.5rem;
+  }
 
   @media (width >= 48rem) {
     --xp-month: 1.125rem;
     --xp-ticks: 4.5rem;
     --xp-trace: 3.5rem;
     --xp-gutter: 2.5rem;
+    --xp-curve-stroke: 1.11;
+
+    &.has-branch {
+      --xp-ticks: 4.5rem;
+      --xp-trace: 3.5rem;
+      --xp-lane: 2.25rem;
+    }
   }
 }
 
+/* Horizontal positions derived from the column widths. */
 .xp-timeline {
+  --xp-main: calc(var(--xp-ticks) + var(--xp-lane) + var(--xp-trace) / 2);
+  --xp-branch-x: calc(var(--xp-main) - var(--xp-lane));
+  --xp-rail: calc(var(--xp-ticks) + var(--xp-lane) + var(--xp-trace));
+  --xp-curve: calc(var(--xp-lane) * 1.25);
+
+  position: relative;
   margin-top: 4rem;
+  padding-top: calc(var(--xp-lead) * var(--xp-month));
+  view-timeline: --xp-seg block;
 
   @media (width >= 64rem) {
-    padding-left: calc(100% / 6);
+    margin-left: calc(100% / 6);
   }
 }
 
-.xp-list {
-  list-style: none;
+.xp-axis {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
-.xp-lead,
-.xp-rail {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  padding-left: var(--xp-ticks);
-  view-timeline: --xp-seg block;
+/* Anything drawn on the trace: placed by month, sized by month unless a piece says otherwise. */
+.xp-piece {
+  --xp-top: calc(var(--xp-at) * var(--xp-month));
+  --xp-height: calc(var(--xp-len, 0) * var(--xp-month));
+
+  position: absolute;
+  z-index: 1;
+  top: var(--xp-top);
+  height: var(--xp-height);
 }
 
-.xp-lead {
-  width: calc(var(--xp-ticks) + var(--xp-trace));
-  height: calc(var(--xp-span) * var(--xp-month));
-}
-
-/* One role: its stretch of rail on the left, the entry on the right, starting where the role starts. */
-.xp-role {
-  display: grid;
-  grid-template-columns: calc(var(--xp-ticks) + var(--xp-trace)) minmax(0, 1fr);
-  column-gap: var(--xp-gutter);
-  min-height: calc((var(--xp-active) + var(--xp-gap)) * var(--xp-month));
-}
-
-/* Year ticks: steel labels with a hairline running to the trace. */
+/* Year ticks: steel labels with a hairline running to the main trace. */
 .xp-tick {
   position: absolute;
   top: calc(var(--xp-at) * var(--xp-month));
   left: 0;
-  width: calc(var(--xp-ticks) + var(--xp-trace) / 2);
+  width: var(--xp-main);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -75,11 +93,13 @@
   }
 }
 
+.xp-tick-now {
+  color: var(--color-ink);
+}
+
 .xp-wave {
-  display: block;
-  flex: none;
+  left: calc(var(--xp-main) - var(--xp-trace) / 2);
   width: var(--xp-trace);
-  height: calc(var(--xp-active) * var(--xp-month));
   overflow: visible;
 
   path {
@@ -92,39 +112,151 @@
   }
 }
 
-/* Between roles the signal is honestly flat. */
-.xp-flat {
-  position: relative;
-  flex: none;
-  width: var(--xp-trace);
-  height: calc(var(--xp-len) * var(--xp-month));
-  transform-origin: top;
+/* Mobile with an education lane swaps to a calmer-amplitude wave so both lanes fit. */
+.xp-wave.is-narrow {
+  display: none;
+}
 
-  &::before {
-    content: "";
-    position: absolute;
-    inset-block: 0;
-    left: calc(50% - var(--xp-line) / 2);
-    width: var(--xp-line);
-    background: var(--color-ultra);
+@media (width < 48rem) {
+  .has-branch .xp-wave.is-wide {
+    display: none;
+  }
+
+  .has-branch .xp-wave.is-narrow {
+    display: block;
   }
 }
 
-/* If an entry runs longer than its stretch of time, the flat line simply continues. */
-.xp-role:not(.is-last) .xp-flat {
-  flex-grow: 1;
+/* Between roles the signal is honestly flat. */
+.xp-flat {
+  left: calc(var(--xp-main) - var(--xp-line) / 2);
+  width: var(--xp-line);
+  background: var(--color-ultra);
+  transform-origin: top;
 }
 
-.xp-rail .xp-flat {
-  --xp-from: var(--xp-active);
+/* The main trace ends at "now" in a static cap. */
+.xp-cap {
+  position: absolute;
+  top: calc(var(--xp-at) * var(--xp-month));
+  left: var(--xp-main);
+  width: 0.875rem;
+  height: 2px;
+  background: var(--color-ultra);
+  transform: translate(-50%, -50%);
 }
 
-/* The start of each role: a dot on the trace and a rule out to the entry. Only the current role is coloured. */
+/* Education branch: forks off the main trace, runs in its own lane, merges back when finished. */
+.xp-curve {
+  --xp-height: var(--xp-curve);
+
+  left: var(--xp-branch-x);
+  width: var(--xp-lane);
+  overflow: visible;
+
+  &.is-merge {
+    --xp-top: calc(var(--xp-at) * var(--xp-month) - var(--xp-curve));
+  }
+
+  path {
+    fill: none;
+    stroke: var(--color-ultra);
+    stroke-width: var(--xp-curve-stroke);
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+.xp-branch {
+  --xp-top: calc(var(--xp-at) * var(--xp-month) + var(--xp-curve));
+  --xp-height: max(0px, calc(var(--xp-len) * var(--xp-month) - var(--xp-curves) * var(--xp-curve)));
+
+  left: calc(var(--xp-branch-x) - var(--xp-branch-line) / 2);
+  width: var(--xp-branch-line);
+  background: var(--color-ultra);
+  transform-origin: top;
+}
+
+/* What has not happened yet is dashed and short: a direction, not a claim about the scale. */
+.xp-projection {
+  left: calc(var(--xp-branch-x) - var(--xp-branch-line) / 2);
+  border-left: var(--xp-branch-line) dashed var(--color-ultra);
+}
+
+.xp-projection-label {
+  position: absolute;
+  top: calc(var(--xp-at) * var(--xp-month) + 0.5rem);
+  left: calc(var(--xp-branch-x) - 2.25rem);
+  width: 4.5rem;
+  text-align: center;
+  font-size: var(--text-sm);
+  line-height: 1.3;
+  color: var(--color-steel);
+}
+
+.xp-node {
+  position: absolute;
+  z-index: 2;
+  top: calc(var(--xp-at) * var(--xp-month));
+  left: var(--xp-main);
+  width: 0.5625rem;
+  height: 0.5625rem;
+  border: 1.5px solid var(--color-ultra);
+  border-radius: 50%;
+  background: var(--color-paper);
+  transform: translate(-50%, -50%);
+}
+
+/* Entries flow beside the trace. Each starts at its date (its window is the time until the next
+   entry starts); if the entry before runs long, it is nudged down while the trace keeps true scale. */
+.xp-list {
+  list-style: none;
+}
+
+.xp-item {
+  display: flow-root;
+  min-height: calc(var(--xp-window) * var(--xp-month));
+  padding-left: calc(var(--xp-rail) + var(--xp-gutter));
+}
+
+/* Entry text sits with its first line centred on its start. */
+.xp-entry {
+  position: relative;
+  margin-top: -1rem;
+  padding-bottom: 1.5rem;
+  max-width: 62ch;
+
+  @media (width >= 48rem) {
+    padding-bottom: 2.5rem;
+  }
+}
+
+/* An education entry starts where its branch reaches the lane. */
+.xp-edu .xp-entry {
+  margin-top: calc(var(--xp-curve) - 1rem);
+  padding-bottom: 1.25rem;
+}
+
+.xp-points {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+  color: var(--color-steel);
+}
+
+.xp-point-lead {
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+/* A rule from the trace out to the entry, with a node where it meets the trace.
+   Only the current role is coloured. */
 .xp-marker {
   position: absolute;
-  top: 0;
-  left: calc(var(--xp-ticks) + var(--xp-trace) / 2);
-  right: calc(-1 * var(--xp-gutter) + 0.5rem);
+  z-index: 2;
+  top: 1rem;
+  right: calc(100% + 0.5rem);
+  width: calc(var(--xp-gutter) + var(--xp-trace) / 2 - 0.5rem);
   height: 1px;
   background: var(--color-ink);
 
@@ -152,92 +284,92 @@
   }
 }
 
-.xp-tick-now {
-  color: var(--color-ink);
+/* The education rule reaches across, under the main trace, to its node on the branch. */
+.xp-edu .xp-marker {
+  z-index: 0;
+  width: calc(var(--xp-gutter) + var(--xp-trace) / 2 + var(--xp-lane) - 0.5rem);
+
+  &::before {
+    z-index: 2;
+    width: 0.5625rem;
+    height: 0.5625rem;
+    border: 1.5px solid var(--color-ultra);
+    background: var(--color-paper);
+  }
 }
 
-/* The current role ends at "now" in a static cap. */
-.xp-cap {
-  position: absolute;
-  top: calc(var(--xp-active) * var(--xp-month));
-  left: calc(var(--xp-ticks) + var(--xp-trace) / 2);
-  width: 0.875rem;
-  height: 2px;
-  background: var(--color-ultra);
-  transform: translate(-50%, -50%);
+/* Gap notes sit at the middle of the gap, or just below the entry above if that runs past it. */
+.xp-note-spacer {
+  float: left;
+  width: 0;
+  height: calc(var(--xp-at) * var(--xp-month));
 }
 
 .xp-gap-note {
-  position: absolute;
-  top: calc((var(--xp-active) + var(--xp-gap) / 2) * var(--xp-month));
-  left: calc(100% + var(--xp-gutter));
+  display: block;
+  clear: left;
   transform: translateY(-50%);
   font-size: var(--text-sm);
   color: var(--color-steel);
-  white-space: nowrap;
-}
-
-/* Entry text sits with its first line centred on the role's start. */
-.xp-entry {
-  margin-top: -1rem;
-  padding-bottom: 2.5rem;
-  max-width: 62ch;
-}
-
-.xp-points {
-  margin-top: 1.25rem;
-  display: grid;
-  gap: 0.75rem;
-  color: var(--color-steel);
-}
-
-.xp-point-lead {
-  font-weight: 500;
-  color: var(--color-ink);
 }
 
 /* Hovering an entry brings its stretch of signal forward. */
 @media (hover: hover) {
-  .xp-rail {
+  .xp-trace {
     transition: opacity 0.4s var(--ease-in-out-quart);
   }
 
-  .xp-list:has(> .xp-role:hover) > .xp-role:not(:hover) .xp-rail {
+  .xp-list:has(> .xp-item:hover) > .xp-item:not(:hover) .xp-trace {
     opacity: 0.35;
   }
 }
 
-/* Scroll-linked drawing: the trace is drawn as it passes the pen line. Reduced motion keeps it fully drawn. */
+/* Scroll-linked drawing: each piece draws as it passes the pen line. Reduced motion keeps it fully drawn. */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .xp-wave path,
-    .xp-flat {
+    .xp-curve path,
+    .xp-flat,
+    .xp-branch,
+    .xp-projection {
       animation-timing-function: linear;
       animation-fill-mode: both;
       animation-duration: auto;
       animation-timeline: --xp-seg;
       animation-range:
-        cover calc(var(--xp-pen-offset) + var(--xp-from, 0) * var(--xp-month))
-        cover calc(var(--xp-pen-offset) + (var(--xp-from, 0) + var(--xp-len)) * var(--xp-month));
+        cover calc(var(--xp-pen-offset) + var(--xp-top))
+        cover calc(var(--xp-pen-offset) + var(--xp-top) + var(--xp-height));
     }
 
-    .xp-wave path {
+    .xp-wave path,
+    .xp-curve path {
       animation-name: xp-draw;
     }
 
-    .xp-flat {
+    .xp-flat,
+    .xp-branch {
       animation-name: xp-grow;
+    }
+
+    .xp-projection {
+      animation-name: xp-appear;
     }
   }
 
   /* Fallback driven by experience.js where view timelines are unsupported. */
   .xp.is-scrubbed {
-    .xp-wave path {
+    .xp-wave path,
+    .xp-curve path {
       stroke-dashoffset: calc(1 - var(--xp-progress, 0));
     }
 
-    .xp-flat {
+    .xp-flat,
+    .xp-branch {
       transform: scaleY(var(--xp-progress, 0));
+    }
+
+    .xp-projection {
+      opacity: var(--xp-progress, 0);
     }
   }
 }
@@ -257,5 +389,14 @@
   }
   to {
     transform: scaleY(1);
+  }
+}
+
+@keyframes xp-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

@@ -1,19 +1,34 @@
 <%
-// Geometry for the signal trace. Everything is measured in months; CSS turns
-// months into length with --xp-month, so the axis stays true to the dates.
-// Wave units equal desktop pixels; the SVG scales uniformly to the month height.
+// Geometry for the signal trace. Everything along the axis is measured in
+// months from the start of the axis; CSS turns months into length with
+// --xp-month, so the trace stays true to the dates. Entries flow beside it and
+// start at their date unless the entry before them is still running.
+// Wave units equal desktop pixels; each SVG scales uniformly to the month height.
 const UNITS_PER_MONTH = 18;
-const WAVE_WIDTH = 56;
+const WAVES = {
+    // Desktop, and mobile without education.
+    wide: { width: 56, current: 22, past: 17 },
+    // Mobile with an education lane beside the main trace.
+    narrow: { width: 28, current: 11, past: 8 },
+};
+// A degree still running is projected this far past "Now", dashed, never to its end date.
+const PROJECTION_MONTHS = 3;
+
 const roles = [...experience].sort((a, b) => a.startMonth - b.startMonth);
+const degrees = [...education].sort((a, b) => a.startMonth - b.startMonth);
+const items = [
+    ...roles.map((data) => ({ kind: 'role', data })),
+    ...degrees.map((data) => ({ kind: 'edu', data })),
+].sort((a, b) => a.data.startMonth - b.data.startMonth);
 
 const seedOf = (text) =>
     [...text].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);
 
 // Deterministic speech-like oscillation: a carrier under a slowly varying
 // envelope, tapered to the flat line at both ends.
-const wavePath = (months, seed, current) => {
+const wavePath = (months, seed, current, wave) => {
     const cycles = current ? 1.6 : 0.8;
-    const amplitude = current ? 22 : 17;
+    const amplitude = current ? wave.current : wave.past;
     const phase = [0, 1, 2].map((i) => ((seed >>> (i * 9)) % 997) / 997 * Math.PI * 2);
     const step = 1 / (cycles * 12);
     const points = [];
@@ -21,7 +36,7 @@ const wavePath = (months, seed, current) => {
         const m = Math.min(t, months);
         const taper = Math.min(1, m / 0.6, (months - m) / 0.6);
         const envelope = 0.6 + 0.4 * Math.sin(m / 1.7 + phase[1]) * Math.sin(m / 0.9 + phase[2]);
-        const x = WAVE_WIDTH / 2 + amplitude * taper * envelope * Math.sin(Math.PI * 2 * cycles * m + phase[0]);
+        const x = wave.width / 2 + amplitude * taper * envelope * Math.sin(Math.PI * 2 * cycles * m + phase[0]);
         points.push(`${x.toFixed(1)} ${(m * UNITS_PER_MONTH).toFixed(1)}`);
     }
     return `M${points.join('L')}`;
@@ -29,7 +44,7 @@ const wavePath = (months, seed, current) => {
 
 const yearsIn = (from, to) => {
     const years = [];
-    for (let year = Math.ceil(from / 12); year * 12 < to; year += 1) years.push({ year, at: year * 12 - from });
+    for (let year = Math.ceil(from / 12); year * 12 < to; year += 1) years.push(year);
     return years;
 };
 
@@ -46,63 +61,112 @@ const gapLabel = (months) => {
 
 const fmt = (n) => +n.toFixed(3);
 %>
-<section id="experience" class="xp wrap" aria-labelledby="experience-title">
-    <h2 id="experience-title" class="heading-section">Experience</h2>
+<section id="experience" class="xp wrap<%= degrees.length ? ' has-branch' : '' %>" aria-labelledby="experience-title">
+    <h2 id="experience-title" class="heading-section">Experience &amp; education</h2>
 
-    <% if (roles.length === 0) { %>
+    <% if (items.length === 0) { %>
         <p class="mt-8 max-w-[62ch] text-lg">My work history is not listed here yet, so <a class="text-ultra underline" href="<%= profile.links.linkedin %>" target="_blank" rel="noopener">read it on LinkedIn</a>.</p>
     <% } else {
-        const axisStart = Math.floor(roles[0].startMonth / 12) * 12;
-        const present = Math.max(...roles.map((r) => r.endMonth));
-        const lead = roles[0].startMonth - axisStart;
+        const axisStart = Math.floor(items[0].data.startMonth / 12) * 12;
+        const present = Math.max(...roles.map((r) => r.endMonth), ...degrees.map((d) => d.progressMonth));
+        const at = (month) => fmt(month - axisStart);
+        const firstRoleStart = roles.length ? roles[0].startMonth : present;
+
+        const projectionOf = (degree) => (degree.expected ? Math.min(degree.endMonth - degree.progressMonth, PROJECTION_MONTHS) : 0);
+        const tail = Math.max(0, ...degrees.map(projectionOf));
+
+        // Each gap between roles gets a note, carried by the entry whose window holds the gap's midpoint.
+        const notes = new Map();
+        roles.forEach((role, index) => {
+            const next = roles[index + 1];
+            if (!next) return;
+            const end = Math.min(role.endMonth, next.startMonth);
+            const label = gapLabel(next.startMonth - end);
+            if (!label) return;
+            const mid = (end + next.startMonth) / 2;
+            const host = items.filter((item) => item.data.startMonth <= mid).pop();
+            notes.set(host.data.id, { label, offset: fmt(mid - host.data.startMonth) });
+        });
     %>
-    <div class="xp-timeline">
-        <% if (lead > 0) { %>
-            <div class="xp-lead" style="--xp-span: <%= fmt(lead) %>" aria-hidden="true">
-                <% yearsIn(axisStart, roles[0].startMonth).forEach(function (tick) { %>
-                    <span class="xp-tick" style="--xp-at: <%= fmt(tick.at) %>"><%= tick.year %></span>
-                <% }); %>
-                <span class="xp-flat" data-xp-draw style="--xp-len: <%= fmt(lead) %>"></span>
-            </div>
-        <% } %>
+    <div class="xp-timeline" style="--xp-lead: <%= at(items[0].data.startMonth) %>">
+        <div class="xp-axis" aria-hidden="true">
+            <% yearsIn(axisStart, present).forEach(function (year) { %>
+                <span class="xp-tick" style="--xp-at: <%= at(year * 12) %>"><%= year %></span>
+            <% }); %>
+            <span class="xp-tick xp-tick-now" style="--xp-at: <%= at(present) %>">Now</span>
+            <% if (firstRoleStart > axisStart) { %>
+                <span class="xp-piece xp-flat" data-xp-draw style="--xp-at: 0; --xp-len: <%= at(firstRoleStart) %>"></span>
+            <% } %>
+            <span class="xp-cap" style="--xp-at: <%= at(present) %>"></span>
+        </div>
 
         <ol class="xp-list">
-            <% roles.forEach(function (role, index) {
-                const next = roles[index + 1];
-                const until = next ? next.startMonth : present;
-                const active = Math.max(Math.min(role.endMonth, until) - role.startMonth, 0.5);
-                const gap = Math.max(until - role.startMonth - active, 0);
-                const label = next ? gapLabel(gap) : '';
+            <% items.forEach(function (item, index) {
+                const next = items[index + 1];
+                const data = item.data;
+                const span = next ? next.data.startMonth - data.startMonth : present - data.startMonth + tail;
+                const note = notes.get(data.id);
             %>
-                <li id="<%= role.id %>" class="xp-role<%= role.current ? ' is-current' : '' %><%= next ? '' : ' is-last' %>"
-                    style="--xp-active: <%= fmt(active) %>; --xp-gap: <%= fmt(gap) %>">
-                    <div class="xp-rail" aria-hidden="true">
-                        <% yearsIn(role.startMonth, until).forEach(function (tick) { %>
-                            <span class="xp-tick" style="--xp-at: <%= fmt(tick.at) %>"><%= tick.year %></span>
-                        <% }); %>
-                        <% if (role.current) { %>
-                            <span class="xp-tick xp-tick-now" style="--xp-at: <%= fmt(active) %>">Now</span>
-                        <% } %>
-                        <span class="xp-marker"></span>
-                        <svg class="xp-wave" data-xp-draw style="--xp-len: <%= fmt(active) %>"
-                            viewBox="0 0 <%= WAVE_WIDTH %> <%= fmt(active * UNITS_PER_MONTH) %>" preserveAspectRatio="xMidYMin slice" focusable="false">
-                            <path d="<%= wavePath(active, seedOf(role.id), role.current) %>" pathLength="1" />
-                        </svg>
-                        <% if (gap > 0) { %>
-                            <span class="xp-flat" data-xp-draw style="--xp-len: <%= fmt(gap) %>"></span>
-                        <% } %>
-                        <% if (!next && role.current) { %><span class="xp-cap"></span><% } %>
-                        <% if (label) { %><span class="xp-gap-note"><%= label %></span><% } %>
-                    </div>
-                    <div class="xp-entry">
-                        <h3 class="font-display text-2xl font-medium text-ink"><%= role.role %></h3>
-                        <p class="mt-1 text-steel"><%= role.company %>, <time datetime="<%= role.start.toISOString().slice(0, 7) %>"><%= role.period %></time></p>
-                        <ul class="xp-points">
-                            <% role.points.forEach(function (point) { %>
-                                <li><span class="xp-point-lead"><%= point.lead %></span><% if (point.rest) { %> <%= point.rest %><% } %></li>
+                <li id="<%= data.id %>" class="xp-item xp-<%= item.kind %><%= item.kind === 'role' && data.current ? ' is-current' : '' %>"
+                    style="--xp-window: <%= fmt(Math.max(span, 0)) %>">
+                    <div class="xp-trace" aria-hidden="true">
+                        <% if (item.kind === 'role') {
+                            const nextRole = roles[roles.indexOf(data) + 1];
+                            const until = nextRole ? nextRole.startMonth : present;
+                            const activeEnd = Math.max(Math.min(data.endMonth, until), data.startMonth + 0.5);
+                            const active = activeEnd - data.startMonth;
+                        %>
+                            <% Object.entries(WAVES).forEach(function ([variant, wave]) { %>
+                                <svg class="xp-piece xp-wave is-<%= variant %>" data-xp-draw style="--xp-at: <%= at(data.startMonth) %>; --xp-len: <%= fmt(active) %>"
+                                    viewBox="0 0 <%= wave.width %> <%= fmt(active * UNITS_PER_MONTH) %>" preserveAspectRatio="xMidYMin slice" focusable="false">
+                                    <path d="<%= wavePath(active, seedOf(data.id), data.current, wave) %>" pathLength="1" />
+                                </svg>
                             <% }); %>
-                        </ul>
+                            <% if (until > activeEnd) { %>
+                                <span class="xp-piece xp-flat" data-xp-draw style="--xp-at: <%= at(activeEnd) %>; --xp-len: <%= fmt(until - activeEnd) %>"></span>
+                            <% } %>
+                        <% } else {
+                            const merged = !data.current;
+                            const bodyEnd = merged ? data.endMonth : data.progressMonth;
+                            const projection = projectionOf(data);
+                        %>
+                            <span class="xp-node xp-node-main" style="--xp-at: <%= at(data.startMonth) %>"></span>
+                            <svg class="xp-piece xp-curve" data-xp-draw style="--xp-at: <%= at(data.startMonth) %>" viewBox="0 0 40 50" preserveAspectRatio="none" focusable="false">
+                                <path d="M40 0C40 25 0 25 0 50" pathLength="1" />
+                            </svg>
+                            <span class="xp-piece xp-branch" data-xp-draw
+                                style="--xp-at: <%= at(data.startMonth) %>; --xp-len: <%= fmt(bodyEnd - data.startMonth) %>; --xp-curves: <%= merged ? 2 : 1 %>"></span>
+                            <% if (merged) { %>
+                                <svg class="xp-piece xp-curve is-merge" data-xp-draw style="--xp-at: <%= at(data.endMonth) %>" viewBox="0 0 40 50" preserveAspectRatio="none" focusable="false">
+                                    <path d="M0 0C0 25 40 25 40 50" pathLength="1" />
+                                </svg>
+                                <span class="xp-node xp-node-main" style="--xp-at: <%= at(data.endMonth) %>"></span>
+                            <% } %>
+                            <% if (projection > 0) { %>
+                                <span class="xp-piece xp-projection" data-xp-draw style="--xp-at: <%= at(bodyEnd) %>; --xp-len: <%= fmt(projection) %>"></span>
+                                <span class="xp-projection-label" style="--xp-at: <%= at(bodyEnd + projection) %>">Expected <%= data.endLabel %></span>
+                            <% } %>
+                        <% } %>
                     </div>
+                    <% if (note) { %><span class="xp-note-spacer" style="--xp-at: <%= note.offset %>"></span><% } %>
+                    <div class="xp-entry">
+                        <span class="xp-marker" aria-hidden="true"></span>
+                        <% if (item.kind === 'role') { %>
+                            <h3 class="font-display text-2xl font-medium text-ink"><%= data.role %></h3>
+                            <p class="mt-1 text-steel"><%= data.company %>, <time datetime="<%= data.start.toISOString().slice(0, 7) %>"><%= data.period %></time></p>
+                        <% } else { %>
+                            <h3 class="font-display text-2xl font-medium text-ink"><%= data.degree %></h3>
+                            <p class="mt-1 text-steel"><%= [data.institution, data.location].filter(Boolean).join(', ') %>, <time datetime="<%= data.start.toISOString().slice(0, 7) %>"><%= data.period %></time></p>
+                        <% } %>
+                        <% if (data.points.length) { %>
+                            <ul class="xp-points">
+                                <% data.points.forEach(function (point) { %>
+                                    <li><span class="xp-point-lead"><%= point.lead %></span><% if (point.rest) { %> <%= point.rest %><% } %></li>
+                                <% }); %>
+                            </ul>
+                        <% } %>
+                    </div>
+                    <% if (note) { %><span class="xp-gap-note" aria-hidden="true"><%= note.label %> between roles</span><% } %>
                 </li>
             <% }); %>
         </ol>
