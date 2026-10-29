@@ -46,7 +46,7 @@
     font-size: var(--text-display);
     line-height: var(--text-display--line-height);
     font-weight: 500;
-    letter-spacing: -0.055em;
+    letter-spacing: -0.04em;
 
     @media (width < 40rem) {
       font-size: 34vw;
@@ -159,14 +159,25 @@
   .hero-readout {
     position: absolute;
     inset-inline-end: 0;
-    top: 50%;
-    transform: translateY(calc(-100% - 3.5rem));
+    /* Sits just above the line's resting crest; no transform, the intro animates it. */
+    bottom: calc(50% + 2.5rem);
     color: var(--color-steel);
     font-size: var(--text-sm);
     font-variant-numeric: tabular-nums;
 
-    @media (width < 64rem) {
-      transform: translateY(calc(-100% - 2.5rem));
+    @media (width >= 64rem) {
+      bottom: calc(50% + 3.5rem);
+    }
+  }
+
+  /* Pre-intro state, only when the hero script can run the sequence. */
+  html.js:not(.is-ready) {
+    .hero-letter {
+      transform: translateY(1.25em);
+    }
+
+    .hero [data-hero-reveal] {
+      opacity: 0;
     }
   }
 }
