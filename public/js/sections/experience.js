@@ -61,6 +61,7 @@ function scrub(section) {
 }
 
 const section = document.getElementById('experience');
+const hasTrace = section?.querySelector('[data-xp-draw]');
 const supportsViewTimeline = CSS.supports('animation-timeline: view()');
 
-if (section && !supportsViewTimeline && !prefersReducedMotion()) scrub(section);
+if (hasTrace && !supportsViewTimeline && !prefersReducedMotion()) scrub(section);
