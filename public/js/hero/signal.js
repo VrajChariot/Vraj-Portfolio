@@ -38,8 +38,8 @@ export function carrier(u, t) {
 export function sampleWave(x, t, wavelength, field) {
   const u = x / wavelength;
   const bump = field.energy * gaussian(x - field.x, field.spread);
-  const voiced = carrier(u, t) * envelope(u, t) * (1 + 1.8 * bump);
-  const chirp = bump * 0.7 * Math.sin(TAU * u * 3.1 - t * 11);
+  const voiced = carrier(u, t) * envelope(u, t) * (1 + 2.4 * bump);
+  const chirp = bump * Math.sin(TAU * u * 3.1 - t * 11);
   return voiced + chirp;
 }
 
