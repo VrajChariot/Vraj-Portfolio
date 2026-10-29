@@ -1,0 +1,8 @@
+<section id="about" class="wrap py-24" aria-labelledby="about-title">
+    <h2 id="about-title" class="heading-section"><%= profile.role %>, <%= profile.location %></h2>
+    <div class="mt-10 max-w-[62ch] space-y-5 text-lg text-steel">
+        <% profile.about.forEach(function (paragraph) { %>
+            <p><%= paragraph %></p>
+        <% }); %>
+    </div>
+</section>

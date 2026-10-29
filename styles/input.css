@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./base.css";
+
+@import "./components/nav.css";
+@import "./components/cursor.css";
+@import "./components/footer.css";
+
+@import "./sections/hero.css";
+@import "./sections/about.css";
+@import "./sections/work.css";
+@import "./sections/experience.css";
+@import "./sections/skills.css";
+@import "./sections/contact.css";

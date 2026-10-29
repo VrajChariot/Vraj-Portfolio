@@ -1,0 +1,38 @@
+/* Design tokens. The default Tailwind palette is disabled so only these colours exist. */
+@theme {
+  --color-*: initial;
+  --color-paper: #e6e8e3;
+  --color-paper-deep: #d9dcd5;
+  --color-ink: #15181c;
+  --color-steel: #5f656c;
+  --color-rule: #c4c8c1;
+  --color-ultra: #2a35e8;
+  --color-ultra-deep: #10166b;
+  --color-ultra-pale: #b9beff;
+
+  --font-display: "Funnel Display", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Funnel Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.55;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.55;
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: 1.45;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.35;
+  --text-3xl: 2.25rem;
+  --text-3xl--line-height: 1.1;
+  --text-4xl: 3rem;
+  --text-4xl--line-height: 1.02;
+  --text-5xl: 4rem;
+  --text-5xl--line-height: 0.98;
+  --text-display: clamp(4.5rem, 17vw, 17rem);
+  --text-display--line-height: 0.82;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+}

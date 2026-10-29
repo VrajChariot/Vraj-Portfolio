@@ -1,0 +1,9 @@
+<section id="hero" class="wrap flex min-h-svh flex-col justify-end pb-16 pt-24" aria-labelledby="hero-title">
+    <h1 id="hero-title" class="font-display text-display font-medium tracking-tight"><%= profile.name %></h1>
+    <p class="mt-8 max-w-[44ch] text-xl"><%= profile.intro %></p>
+    <ul class="mt-8 flex flex-wrap gap-6">
+        <li><a class="text-ultra underline" href="#work">See the work</a></li>
+        <li><a class="text-ultra underline" href="<%= profile.links.cv %>" target="_blank" rel="noopener">Open the CV</a></li>
+        <li><a class="text-ultra underline" href="mailto:<%= profile.email %>">Email me</a></li>
+    </ul>
+</section>

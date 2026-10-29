@@ -1,0 +1,14 @@
+<section id="experience" class="wrap py-24" aria-labelledby="experience-title">
+    <h2 id="experience-title" class="heading-section">Experience</h2>
+    <ol class="mt-12 space-y-12">
+        <% experience.forEach(function (role) { %>
+            <li id="<%= role.id %>">
+                <h3 class="font-display text-2xl"><%= role.role %></h3>
+                <p class="text-steel"><%= role.company %>, <time datetime="<%= role.start.toISOString() %>"><%= role.period %></time></p>
+                <ul class="mt-4 max-w-[62ch] list-disc space-y-2 pl-5">
+                    <% role.summary.forEach(function (line) { %><li><%= line %></li><% }); %>
+                </ul>
+            </li>
+        <% }); %>
+    </ol>
+</section>

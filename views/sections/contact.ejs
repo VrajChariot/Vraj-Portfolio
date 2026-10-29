@@ -1,0 +1,18 @@
+<section id="contact" class="bg-ultra-deep py-24 text-paper" aria-labelledby="contact-title">
+    <div class="wrap">
+        <h2 id="contact-title" class="heading-section">Contact</h2>
+        <p class="mt-6"><a class="underline" href="mailto:<%= profile.email %>"><%= profile.email %></a></p>
+        <form action="https://api.web3forms.com/submit" method="POST" class="mt-10 grid max-w-xl gap-4">
+            <input type="hidden" name="access_key" value="<%= profile.contactFormKey %>">
+            <label>Name <input class="block w-full text-ink" type="text" name="name" required></label>
+            <label>Email <input class="block w-full text-ink" type="email" name="email" required></label>
+            <label>Message <textarea class="block w-full text-ink" name="message" required></textarea></label>
+            <input type="checkbox" name="botcheck" class="hidden">
+            <button type="submit">Send message</button>
+        </form>
+        <ul class="mt-10 flex gap-6">
+            <li><a class="underline" href="<%= profile.links.linkedin %>" target="_blank" rel="noopener">LinkedIn</a></li>
+            <li><a class="underline" href="<%= profile.links.github %>" target="_blank" rel="noopener">GitHub</a></li>
+        </ul>
+    </div>
+</section>

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tailwindcss -i ./public/input.css -o ./public/output.css --watch",
+    "build": "tailwindcss -i ./styles/input.css -o ./public/output.css --minify",
+    "watch:css": "tailwindcss -i ./styles/input.css -o ./public/output.css --watch",
     "start": "node main.js",
     "dev": "nodemon main.js"
   },

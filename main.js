@@ -1,22 +1,19 @@
-import express from 'express'
+import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { PorfoliolData } from './models/ProjectData.js';
-import {ExpData} from './models/ExpData.js';
-
-
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { PorfoliolData } from './models/ProjectData.js';
+import { ExpData } from './models/ExpData.js';
+import { profile } from './data/profile.js';
+import { skillGroups } from './data/skills.js';
+import { toProjectView, toExperienceView, toEvidenceSources, withSkillEvidence } from './lib/viewModels.js';
 
-// === SECTION 2: Define __filename and __dirname for ES Modules ===
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Load environment variables from .env file
 dotenv.config();
 
-const app = express()
+const app = express();
 const port = process.env.PORT || 8000;
 
 app.use((req, res, next) => {
@@ -26,40 +23,36 @@ app.use((req, res, next) => {
 });
 
 try {
-  let connDB = await mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-  console.log('Connected to MongoDB:', connDB.connection.name);
+  const conn = await mongoose.connect(process.env.MONGODB_URI);
+  console.log('Connected to MongoDB:', conn.connection.name);
 } catch (error) {
   console.error('MongoDB connection error:', error);
 }
 
-
-// === SECTION 3: Use path.join for serving static files from 'public' ===
 app.use(express.static(path.join(__dirname, 'public')));
-
-// === SECTION 4: Explicitly set the 'views' directory and 'view engine' ===
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.get('/', async (req, res) => {
-  console.log('express is ready!');
-  const projects = await PorfoliolData.find({}).sort({ _id: -1 });
-  console.log('Projects fetched:', projects);
-  const experience = await ExpData.find({}).sort({ _id: -1 });
-  console.log('Experience fetched:', experience);
-  res.render('index', {
-    title: "Vraj shah",
-    projects: projects,
-    experience: experience
-});
-})
+  const [projectDocs, experienceDocs] = await Promise.all([
+    PorfoliolData.find({}).sort({ _id: -1 }).lean(),
+    ExpData.find({}).sort({ _id: -1 }).lean(),
+  ]);
+  const projects = projectDocs.map(toProjectView);
+  const experience = experienceDocs.map(toExperienceView);
 
-if (!process.env.VERCEL) { // Or process.env.NODE_ENV !== 'production'
+  res.render('index', {
+    profile,
+    projects,
+    experience,
+    skillGroups: withSkillEvidence(skillGroups, toEvidenceSources(projects, experience, profile.colophon)),
+  });
+});
+
+if (!process.env.VERCEL) {
   app.listen(port, () => {
-    console.log(`Example app listening on port http://localhost:${port}`);
+    console.log(`Portfolio listening on http://localhost:${port}`);
   });
 }
 
-export default app; 
+export default app;
