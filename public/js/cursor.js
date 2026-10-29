@@ -5,8 +5,8 @@ import { pull, release } from './shell/magnetic.js';
 
 const LERP = 0.2;
 const SETTLE = 0.1;
-const RING = 36;
-const HOVER_PAD = 10;
+const HOVER_PAD = 12;
+const MIN_RING = 24;
 
 function init() {
   const root = document.querySelector('.cursor');
@@ -24,21 +24,21 @@ function init() {
   let state = { mode: 'idle' };
   let magnet = null;
   let frame = 0;
+  let hoverCenter = null;
 
-  const ringTarget = () => {
-    if (state.mode !== 'hover') return pointer;
-    const rect = state.element.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-  };
+  const ringTarget = () => hoverCenter ?? pointer;
 
-  const sizeRing = () => {
-    if (state.mode === 'hover') {
-      const rect = state.element.getBoundingClientRect();
-      const size = Math.min(Math.max(rect.width, rect.height) + HOVER_PAD, 72);
-      ring.style.width = ring.style.height = `${Math.max(size, 24)}px`;
-    } else {
+  // Measured in event handlers only, so the animation loop never reads layout.
+  const measureHover = () => {
+    if (state.mode !== 'hover') {
+      hoverCenter = null;
       ring.style.width = ring.style.height = '';
+      return;
     }
+    const rect = state.element.getBoundingClientRect();
+    hoverCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    ring.style.width = `${Math.max(rect.width + HOVER_PAD, MIN_RING)}px`;
+    ring.style.height = `${Math.max(rect.height + HOVER_PAD, MIN_RING)}px`;
   };
 
   const tick = () => {
@@ -62,7 +62,6 @@ function init() {
     if (!changed) return;
     root.dataset.mode = next.mode;
     label.textContent = next.mode === 'label' ? next.label : '';
-    sizeRing();
   };
 
   const setMagnet = (element) => {
@@ -86,6 +85,7 @@ function init() {
     setState(describeTarget(event.target));
     setMagnet(prefersReducedMotion() ? null : magneticOf(event.target));
     if (magnet) pull(magnet, pointer.x, pointer.y);
+    measureHover();
     wake();
   };
 
@@ -97,7 +97,12 @@ function init() {
   const onDown = () => root.classList.add('is-pressed');
   const onUp = () => root.classList.remove('is-pressed');
   const onScroll = () => {
-    if (state.mode === 'hover') wake();
+    if (root.dataset.visible !== 'true') return;
+    const under = document.elementFromPoint(pointer.x, pointer.y);
+    setState(describeTarget(under));
+    setMagnet(null);
+    measureHover();
+    wake();
   };
 
   window.addEventListener('pointermove', onMove, { passive: true });
