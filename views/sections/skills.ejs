@@ -39,7 +39,6 @@
                                         id="<%= skill.id %>"
                                         data-skill
                                         data-evidence="<%= skill.evidence.map((source) => source.id).join(' ') %>"
-                                        data-cursor="Trace"
                                         aria-expanded="false"
                                         aria-controls="<%= skill.id %>-evidence"
                                         aria-describedby="<%= skill.id %>-used"
@@ -66,7 +65,7 @@
                     <ul class="mt-2" role="list">
                         <% group.sources.forEach(function (source) { %>
                             <li class="skills-source-item">
-                                <a class="skills-source" href="#<%= source.id %>" data-source="<%= source.id %>" data-cursor="Read"><%= source.label %></a>
+                                <a class="skills-source" href="#<%= source.id %>" data-source="<%= source.id %>"><%= source.label %></a>
                                 <span class="whitespace-nowrap text-sm text-steel"><%= skillCount[source.id] %> <%= skillCount[source.id] === 1 ? 'skill' : 'skills' %></span>
                             </li>
                         <% }); %>
