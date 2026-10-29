@@ -91,6 +91,18 @@
     }
   }
 
+  /* The role, written the way it would appear in his own code: a comment above the intro. */
+  .hero-role {
+    margin-block-end: 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--color-steel);
+  }
+
+  .hero-role__slashes {
+    color: var(--color-ultra);
+  }
+
   .hero-intro {
     max-width: 44ch;
     font-size: var(--text-xl);
