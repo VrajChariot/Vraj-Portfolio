@@ -1,6 +1,4 @@
-// Scroll-linked nav state: current section, deep-theme overlap, scrolled/hidden.
-
-const SCROLL_DELTA = 6;
+// Scroll-linked nav state: current section, deep-theme overlap, scrolled state and page progress.
 
 export function observeCurrentSection(links) {
   const byId = new Map(links.map((link) => [link.getAttribute('href').slice(1), link]));
@@ -46,29 +44,26 @@ export function observeDeepOverlap(nav) {
   window.addEventListener('resize', build, { passive: true });
 }
 
-export function trackScrollDirection(nav, isLocked) {
-  let lastY = window.scrollY;
+// The bar stays pinned; it gains a solid surface once the page moves and its
+// hairline fills with reading progress.
+export function trackScroll(nav) {
   let ticking = false;
 
   const update = () => {
     ticking = false;
     const y = window.scrollY;
+    const range = document.documentElement.scrollHeight - window.innerHeight;
     nav.classList.toggle('is-scrolled', y > 8);
-    if (isLocked()) return;
-    if (Math.abs(y - lastY) < SCROLL_DELTA) return;
-    nav.classList.toggle('is-hidden', y > lastY && y > nav.offsetHeight && !nav.contains(document.activeElement));
-    lastY = y;
+    nav.style.setProperty('--nav-progress', range > 0 ? Math.min(1, y / range).toFixed(4) : '0');
   };
 
-  window.addEventListener(
-    'scroll',
-    () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(update);
-    },
-    { passive: true },
-  );
-  nav.addEventListener('focusin', () => nav.classList.remove('is-hidden'));
+  const schedule = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  };
+
+  window.addEventListener('scroll', schedule, { passive: true });
+  window.addEventListener('resize', schedule, { passive: true });
   update();
 }

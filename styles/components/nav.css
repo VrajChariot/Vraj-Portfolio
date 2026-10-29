@@ -3,7 +3,6 @@
   color: var(--color-ink);
   border-bottom: 1px solid transparent;
   transition:
-    transform 0.5s var(--ease-in-out-quart),
     opacity 0.6s var(--ease-out-expo),
     background-color 0.3s linear,
     border-color 0.3s linear,
@@ -20,8 +19,25 @@ html.js .site-nav:not(.is-visible) {
   border-bottom-color: var(--color-rule);
 }
 
-.site-nav.is-hidden {
-  transform: translateY(-100%);
+/* Reading progress along the bottom edge; only once the bar has a surface. */
+.site-nav-progress {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-ultra);
+  transform: scaleX(var(--nav-progress, 0));
+  transform-origin: left;
+  opacity: 0;
+  transition: opacity 0.3s linear;
+}
+
+.site-nav.is-scrolled .site-nav-progress {
+  opacity: 1;
+}
+
+.site-nav.is-deep .site-nav-progress {
+  background: var(--color-ultra-pale);
 }
 
 .site-nav.is-deep {
