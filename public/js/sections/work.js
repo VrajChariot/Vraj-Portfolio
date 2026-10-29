@@ -1,15 +1,19 @@
-// Work index: toggles rows from their buttons, opens the row named in the URL hash,
-// and runs the request packet in the open row's flow diagram.
+// Work index: toggles rows from their buttons, opens the row named in the URL hash, and
+// cross-links each open panel's stack key with the terms marked in its description.
 import { prefersReducedMotion } from '../core/motion.js';
 import { createAccordion } from '../work/accordion.js';
-import { createFlowMotion } from '../work/flow-motion.js';
+import { bindHighlight } from '../work/highlight.js';
 
 const index = document.querySelector('[data-work-index]');
 
 if (index) {
   const rows = [...index.querySelectorAll('[data-work-row]')];
-  const flowMotion = createFlowMotion(rows);
-  const accordion = createAccordion(rows, { onChange: flowMotion.sync });
+  const highlight = bindHighlight(index);
+  const accordion = createAccordion(rows, {
+    onChange: (row) => {
+      if (!row.classList.contains('is-open')) highlight.clear(row.querySelector('[data-work-annotations]'));
+    },
+  });
   const rowFor = (hash) => rows.find((row) => `#${row.id}` === hash);
 
   function reveal(hash) {
