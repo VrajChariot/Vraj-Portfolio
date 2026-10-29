@@ -14,17 +14,23 @@ function setOpen(row, open, { instant = false } = {}) {
   }
 }
 
-export function createAccordion(rows) {
+// `onChange(row)` runs after a row opens or closes.
+export function createAccordion(rows, { onChange = () => {} } = {}) {
   const isOpen = (row) => row.classList.contains('is-open');
+
+  const set = (row, open, options) => {
+    setOpen(row, open, options);
+    onChange(row);
+  };
 
   // `instant` skips the collapse animation of the other rows so the opened row stays put.
   function open(row, { instant = false } = {}) {
-    rows.filter((other) => other !== row && isOpen(other)).forEach((other) => setOpen(other, false, { instant }));
-    if (!isOpen(row)) setOpen(row, true);
+    rows.filter((other) => other !== row && isOpen(other)).forEach((other) => set(other, false, { instant }));
+    if (!isOpen(row)) set(row, true);
   }
 
   function toggle(row) {
-    if (isOpen(row)) setOpen(row, false);
+    if (isOpen(row)) set(row, false);
     else open(row);
   }
 
