@@ -71,8 +71,14 @@
     }
   }
 
-  .hero-letter {
+  /* Letters only become boxes when the script animates them and restores kerning. */
+  html.js .hero-letter {
     display: inline-block;
+  }
+
+  /* The readout describes the live wave, which needs the script. */
+  html:not(.js) .hero-readout {
+    display: none;
   }
 
   .hero-copy {
