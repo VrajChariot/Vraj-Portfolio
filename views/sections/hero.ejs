@@ -1,9 +1,31 @@
-<section id="hero" class="wrap flex min-h-svh flex-col justify-end pb-16 pt-24" aria-labelledby="hero-title">
-    <h1 id="hero-title" class="font-display text-display font-medium tracking-tight"><%= profile.name %></h1>
-    <p class="mt-8 max-w-[44ch] text-xl"><%= profile.intro %></p>
-    <ul class="mt-8 flex flex-wrap gap-6">
-        <li><a class="text-ultra underline" href="#work">See the work</a></li>
-        <li><a class="text-ultra underline" href="<%= profile.links.cv %>" target="_blank" rel="noopener">Open the CV</a></li>
-        <li><a class="text-ultra underline" href="mailto:<%= profile.email %>">Email me</a></li>
-    </ul>
+<section id="hero" class="hero" aria-labelledby="hero-title" data-hero>
+    <canvas class="hero-canvas" aria-hidden="true" data-hero-canvas></canvas>
+
+    <div class="hero-grid wrap">
+        <h1 id="hero-title" class="hero-name font-display">
+            <span class="sr-only"><%= profile.name %></span>
+            <span aria-hidden="true"><% profile.name.split(' ').forEach(function (word, index) { %><%= index ? ' ' : '' %><span class="hero-word"><% Array.from(word).forEach(function (letter) { %><span class="hero-letter"><%= letter %></span><% }); %></span><% }); %></span>
+        </h1>
+
+        <div class="hero-copy">
+            <p class="hero-intro" data-hero-reveal><%= profile.intro %></p>
+            <ul class="hero-actions">
+                <li data-hero-reveal>
+                    <a class="hero-primary" href="#work" data-cursor="View" data-magnetic>See the work</a>
+                </li>
+                <li data-hero-reveal>
+                    <a class="hero-link" href="<%= profile.links.cv %>" target="_blank" rel="noopener" data-cursor="Open" data-magnetic>Open the CV</a>
+                </li>
+                <li data-hero-reveal>
+                    <a class="hero-link" href="mailto:<%= profile.email %>" data-cursor="Email" data-magnetic>Email me</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="hero-band" aria-hidden="true" data-hero-band>
+            <p class="hero-readout" data-hero-reveal><span data-hero-readout>50.00</span> Hz</p>
+        </div>
+    </div>
+
+    <script type="module" src="/js/hero/index.js"></script>
 </section>
