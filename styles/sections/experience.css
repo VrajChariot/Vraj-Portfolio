@@ -1,1 +1,261 @@
-/* Experience: chronological signal trace. */
+/* Experience: chronological signal trace. Lengths along the axis are months × --xp-month. */
+.xp {
+  --xp-month: 1.25rem;
+  --xp-ticks: 2.5rem;
+  --xp-trace: 2.5rem;
+  --xp-gutter: 0.875rem;
+  --xp-line: 1.5px;
+  /* Where the drawing pen sits: 60% down the viewport, expressed as a view-timeline offset. */
+  --xp-pen-offset: 40vh;
+
+  padding-block: 6rem;
+
+  @media (width >= 48rem) {
+    --xp-month: 1.125rem;
+    --xp-ticks: 4.5rem;
+    --xp-trace: 3.5rem;
+    --xp-gutter: 2.5rem;
+  }
+}
+
+.xp-timeline {
+  margin-top: 4rem;
+
+  @media (width >= 64rem) {
+    padding-left: calc(100% / 6);
+  }
+}
+
+.xp-list {
+  list-style: none;
+}
+
+.xp-lead,
+.xp-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-left: var(--xp-ticks);
+  view-timeline: --xp-seg block;
+}
+
+.xp-lead {
+  width: calc(var(--xp-ticks) + var(--xp-trace));
+  height: calc(var(--xp-span) * var(--xp-month));
+}
+
+/* One role: its stretch of rail on the left, the entry on the right, starting where the role starts. */
+.xp-role {
+  display: grid;
+  grid-template-columns: calc(var(--xp-ticks) + var(--xp-trace)) minmax(0, 1fr);
+  column-gap: var(--xp-gutter);
+  min-height: calc((var(--xp-active) + var(--xp-gap)) * var(--xp-month));
+}
+
+/* Year ticks: steel labels with a hairline running to the trace. */
+.xp-tick {
+  position: absolute;
+  top: calc(var(--xp-at) * var(--xp-month));
+  left: 0;
+  width: calc(var(--xp-ticks) + var(--xp-trace) / 2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translateY(-50%);
+  font-size: var(--text-sm);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-steel);
+
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--color-rule);
+  }
+}
+
+.xp-wave {
+  display: block;
+  flex: none;
+  width: var(--xp-trace);
+  height: calc(var(--xp-active) * var(--xp-month));
+  overflow: visible;
+
+  path {
+    fill: none;
+    stroke: var(--color-ultra);
+    stroke-width: var(--xp-line);
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Between roles the signal is honestly flat. */
+.xp-flat {
+  position: relative;
+  flex: none;
+  width: var(--xp-trace);
+  height: calc(var(--xp-len) * var(--xp-month));
+  transform-origin: top;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: calc(50% - var(--xp-line) / 2);
+    width: var(--xp-line);
+    background: var(--color-ultra);
+  }
+}
+
+/* If an entry runs longer than its stretch of time, the flat line simply continues. */
+.xp-role:not(.is-last) .xp-flat {
+  flex-grow: 1;
+}
+
+.xp-rail .xp-flat {
+  --xp-from: var(--xp-active);
+}
+
+/* The start of each role: a dot on the trace and a rule out to the entry. Only the current role is coloured. */
+.xp-marker {
+  position: absolute;
+  top: 0;
+  left: calc(var(--xp-ticks) + var(--xp-trace) / 2);
+  right: calc(-1 * var(--xp-gutter) + 0.5rem);
+  height: 1px;
+  background: var(--color-ink);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-ink);
+    transform: translate(-50%, -50%);
+  }
+}
+
+.is-current .xp-marker {
+  height: 2px;
+  background: var(--color-ultra);
+
+  &::before {
+    width: 0.75rem;
+    height: 0.75rem;
+    background: var(--color-ultra);
+  }
+}
+
+.xp-tick-now {
+  color: var(--color-ink);
+}
+
+/* The current role ends at "now" in a static cap. */
+.xp-cap {
+  position: absolute;
+  top: calc(var(--xp-active) * var(--xp-month));
+  left: calc(var(--xp-ticks) + var(--xp-trace) / 2);
+  width: 0.875rem;
+  height: 2px;
+  background: var(--color-ultra);
+  transform: translate(-50%, -50%);
+}
+
+.xp-gap-note {
+  position: absolute;
+  top: calc((var(--xp-active) + var(--xp-gap) / 2) * var(--xp-month));
+  left: calc(100% + var(--xp-gutter));
+  transform: translateY(-50%);
+  font-size: var(--text-sm);
+  color: var(--color-steel);
+  white-space: nowrap;
+}
+
+/* Entry text sits with its first line centred on the role's start. */
+.xp-entry {
+  margin-top: -1rem;
+  padding-bottom: 2.5rem;
+  max-width: 62ch;
+}
+
+.xp-points {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+  color: var(--color-steel);
+}
+
+.xp-point-lead {
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+/* Hovering an entry brings its stretch of signal forward. */
+@media (hover: hover) {
+  .xp-rail {
+    transition: opacity 0.4s var(--ease-in-out-quart);
+  }
+
+  .xp-list:has(> .xp-role:hover) > .xp-role:not(:hover) .xp-rail {
+    opacity: 0.35;
+  }
+}
+
+/* Scroll-linked drawing: the trace is drawn as it passes the pen line. Reduced motion keeps it fully drawn. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .xp-wave path,
+    .xp-flat {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-duration: auto;
+      animation-timeline: --xp-seg;
+      animation-range:
+        cover calc(var(--xp-pen-offset) + var(--xp-from, 0) * var(--xp-month))
+        cover calc(var(--xp-pen-offset) + (var(--xp-from, 0) + var(--xp-len)) * var(--xp-month));
+    }
+
+    .xp-wave path {
+      animation-name: xp-draw;
+    }
+
+    .xp-flat {
+      animation-name: xp-grow;
+    }
+  }
+
+  /* Fallback driven by experience.js where view timelines are unsupported. */
+  .xp.is-scrubbed {
+    .xp-wave path {
+      stroke-dashoffset: calc(1 - var(--xp-progress, 0));
+    }
+
+    .xp-flat {
+      transform: scaleY(var(--xp-progress, 0));
+    }
+  }
+}
+
+@keyframes xp-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes xp-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
