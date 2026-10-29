@@ -9,12 +9,15 @@ const clamp01 = (value) => Math.min(Math.max(value, 0), 1);
 
 const segmentHeight = (el) => (el instanceof HTMLElement ? el.offsetHeight : el.getBoundingClientRect().height);
 
+// Hidden variants (the other breakpoint's wave) have no height and are skipped.
 function measure(segments) {
-  return segments.map((el) => ({
-    el,
-    top: el.getBoundingClientRect().top + window.scrollY,
-    height: segmentHeight(el),
-  }));
+  return segments
+    .map((el) => ({
+      el,
+      top: el.getBoundingClientRect().top + window.scrollY,
+      height: segmentHeight(el),
+    }))
+    .filter(({ height }) => height > 0);
 }
 
 function draw(layout, pen) {
