@@ -1,1 +1,78 @@
 /* About: short statement under the hero. */
+@layer components {
+  .about {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: 6rem;
+
+    @media (width >= 64rem) {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 2rem;
+      row-gap: 4rem;
+      padding-block: 9rem;
+    }
+  }
+
+  .about-title {
+    max-width: 22ch;
+    text-wrap: balance;
+
+    @media (width >= 64rem) {
+      grid-column: 1 / span 8;
+    }
+  }
+
+  .about-body {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 62ch;
+    font-size: var(--text-lg);
+    line-height: 1.55;
+
+    @media (width >= 64rem) {
+      grid-column: 6 / span 7;
+      grid-row: 2;
+    }
+  }
+
+  .about-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 3rem;
+
+    @media (width >= 64rem) {
+      grid-column: 1 / span 4;
+      grid-row: 2;
+      flex-direction: column;
+      padding-block-start: 0.35rem;
+    }
+
+    dt {
+      color: var(--color-steel);
+      font-size: var(--text-sm);
+    }
+
+    dd {
+      display: grid;
+      margin-block-start: 0.25rem;
+    }
+
+    a {
+      font-weight: 500;
+      text-decoration: underline;
+      text-decoration-color: var(--color-rule);
+      text-underline-offset: 0.25em;
+      transition: text-decoration-color 0.4s var(--ease-in-out-quart);
+
+      &:hover,
+      &:focus-visible {
+        text-decoration-color: var(--color-ultra);
+      }
+    }
+  }
+
+  .about-period {
+    color: var(--color-steel);
+    font-size: var(--text-sm);
+  }
+}

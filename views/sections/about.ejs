@@ -1,8 +1,31 @@
-<section id="about" class="wrap py-24" aria-labelledby="about-title">
-    <h2 id="about-title" class="heading-section"><%= profile.role %>, <%= profile.location %></h2>
-    <div class="mt-10 max-w-[62ch] space-y-5 text-lg text-steel">
+<%
+    const currentRole = experience.find(function (role) { return role.current; });
+    const foundedRole = experience.find(function (role) { return /founder/i.test(role.role); });
+    const facts = [
+        currentRole && { term: 'Now', role: currentRole },
+        foundedRole && { term: 'Founded', role: foundedRole },
+    ].filter(Boolean);
+%>
+<section id="about" class="about wrap" aria-labelledby="about-title">
+    <h2 id="about-title" class="about-title heading-section"><% (profile.role + ' in ' + profile.location).split(' ').forEach(function (word, index) { %><%= index ? ' ' : '' %><span class="whitespace-nowrap"><%= word %></span><% }); %></h2>
+
+    <div class="about-body">
         <% profile.about.forEach(function (paragraph) { %>
             <p><%= paragraph %></p>
         <% }); %>
     </div>
+
+    <% if (facts.length) { %>
+        <dl class="about-facts">
+            <% facts.forEach(function (fact) { %>
+                <div>
+                    <dt><%= fact.term %></dt>
+                    <dd>
+                        <a href="#<%= fact.role.id %>" data-cursor="Read"><%= fact.role.companyShort %></a>
+                        <span class="about-period"><%= fact.role.period %></span>
+                    </dd>
+                </div>
+            <% }); %>
+        </dl>
+    <% } %>
 </section>
