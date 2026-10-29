@@ -22,7 +22,7 @@ export const skillGroups = [
     label: 'Services and data',
     summary: 'The backends that agents call and products run on.',
     skills: [
-      { name: 'Python', match: ['python'] },
+      { name: 'Python', match: ['python', 'fastapi'] },
       { name: 'FastAPI', match: ['fastapi'] },
       { name: 'Node.js', match: ['node\\.js', '\\bnode\\b'] },
       { name: 'Express', match: ['express'] },
