@@ -6,6 +6,8 @@
 
   .work-row {
     --row-bleed: 1rem;
+    --hide-delay: 0.7s;
+    --draw-delay: 0.2s;
     position: relative;
     border-bottom: 1px solid var(--color-rule);
     isolation: isolate;
@@ -37,13 +39,14 @@
       "stack stack";
     column-gap: 1.5rem;
     row-gap: 1rem;
-    padding-block: 1.75rem;
+    margin-inline: calc(var(--row-bleed) * -1);
+    padding: 1.75rem var(--row-bleed);
   }
 
-  /* The whole head is the hit area; focus is drawn around it rather than the bare text. */
+  /* The whole head (gutter included) is the hit area; focus is drawn around it rather than the bare text. */
   .work-row__head:has(.work-row__toggle:focus-visible) {
     outline: 2px solid var(--color-ultra);
-    outline-offset: 0;
+    outline-offset: -2px;
   }
 
   .work-row__title {
@@ -175,7 +178,7 @@
     transition:
       grid-template-rows 0.7s var(--ease-in-out-quart),
       opacity 0.3s var(--ease-in-out-quart),
-      visibility 0s linear 0.7s;
+      visibility 0s linear var(--hide-delay);
   }
 
   .work-row.is-instant .work-panel,
@@ -230,7 +233,7 @@
   }
 
   .js .work-row.is-open .work-panel__signature path {
-    transition: stroke-dashoffset 1.6s var(--ease-out-expo) 0.2s;
+    transition: stroke-dashoffset 1.6s var(--ease-out-expo) var(--draw-delay);
   }
 
   .work-panel__links {
@@ -292,6 +295,14 @@
 
     .work-row__head:hover .work-row__mark {
       border-color: var(--color-ultra);
+    }
+  }
+
+  /* The global kill switch shortens durations but not delays; drop the panel's delays too. */
+  @media (prefers-reduced-motion: reduce) {
+    .work-row {
+      --hide-delay: 0s;
+      --draw-delay: 0s;
     }
   }
 }
