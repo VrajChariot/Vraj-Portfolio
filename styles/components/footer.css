@@ -1,5 +1,5 @@
 /* Footer: closes the deep contact field. */
-.site-footer .wrap {
+.site-footer-inner {
   border-color: color-mix(in srgb, var(--color-ultra-pale) 25%, transparent);
 }
 
