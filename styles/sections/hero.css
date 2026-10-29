@@ -46,14 +46,15 @@
     font-size: var(--text-display);
     line-height: var(--text-display--line-height);
     font-weight: 500;
-    letter-spacing: -0.04em;
+    /* Funnel Display's a and r spurs collide below about -0.015em at this size. */
+    letter-spacing: -0.012em;
 
     @media (width < 40rem) {
       font-size: 34vw;
     }
 
     @media (width >= 64rem) {
-      font-size: clamp(4.5rem, 22vw, 19.75rem);
+      font-size: clamp(4.5rem, 20.6vw, 18.5rem);
       white-space: nowrap;
     }
   }
