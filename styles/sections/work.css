@@ -1,4 +1,4 @@
-/* Work: project index rows, expansion, signature waveforms. */
+/* Work: project index rows, expansion, request route and flow diagram. */
 @layer components {
   .work-index {
     border-top: 1px solid var(--color-rule);
@@ -7,7 +7,6 @@
   .work-row {
     --row-bleed: 1rem;
     --hide-delay: 0.7s;
-    --draw-delay: 0.2s;
     position: relative;
     border-bottom: 1px solid var(--color-rule);
     isolation: isolate;
@@ -35,10 +34,9 @@
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       "title mark"
-      "spark spark"
-      "stack stack";
+      "meta meta";
     column-gap: 1.5rem;
-    row-gap: 1rem;
+    row-gap: 1.25rem;
     margin-inline: calc(var(--row-bleed) * -1);
     padding: 1.75rem var(--row-bleed);
   }
@@ -89,30 +87,44 @@
     max-width: 40ch;
   }
 
-  .work-row__spark {
-    grid-area: spark;
-    width: 100%;
-    height: 2.5rem;
-    overflow: hidden;
+  .work-row__meta {
+    grid-area: meta;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
     pointer-events: none;
   }
 
-  .work-row__spark path {
-    fill: none;
-    stroke: var(--color-ultra);
-    stroke-width: 1.25;
-    stroke-linejoin: round;
-    transition: transform 0.7s var(--ease-in-out-quart);
+  /* Route line: hop labels joined by short hairlines. */
+  .work-route {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 0.25rem;
+    font-size: var(--text-sm);
+    color: var(--color-ink);
+  }
+
+  .work-route li {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .work-route li + li::before {
+    content: "";
+    width: 1.25rem;
+    height: 1px;
+    margin-inline: 0.5rem;
+    background: var(--color-steel);
+    transition: background-color 0.4s var(--ease-in-out-quart);
   }
 
   .work-row__stack {
-    grid-area: stack;
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem 1.25rem;
     font-size: var(--text-sm);
     color: var(--color-steel);
-    pointer-events: none;
   }
 
   /* Plus that turns into a minus: two hairlines in a small pill-shaped control. */
@@ -206,41 +218,11 @@
     line-height: 1.55;
   }
 
-  .work-panel__signature {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-
-  .work-panel__signature line {
-    stroke: var(--color-rule);
-    stroke-width: 1;
-  }
-
-  .work-panel__signature path {
-    fill: none;
-    stroke: var(--color-ultra);
-    stroke-width: 1.75;
-    stroke-linejoin: round;
-    stroke-linecap: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-  }
-
-  .js .work-row:not(.is-open) .work-panel__signature path {
-    stroke-dashoffset: 1;
-  }
-
-  .js .work-row.is-open .work-panel__signature path {
-    transition: stroke-dashoffset 1.6s var(--ease-out-expo) var(--draw-delay);
-  }
-
   .work-panel__links {
     display: flex;
     flex-wrap: wrap;
+    align-content: start;
     gap: 0 1.75rem;
-    margin-top: 1rem;
   }
 
   .work-panel__links a {
@@ -258,6 +240,81 @@
     text-decoration-thickness: 2px;
   }
 
+  /* Flow diagram: hops as plain nodes joined by hairlines; vertical until 48rem. */
+  .work-flow {
+    --flow-gap: 2rem;
+    --flow-axis: 24px;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .work-flow__caption {
+    color: var(--color-steel);
+  }
+
+  .work-flow__track {
+    position: relative;
+  }
+
+  .work-flow__hops {
+    display: flex;
+    flex-direction: column;
+    gap: var(--flow-gap);
+  }
+
+  .work-flow__node {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 0.375rem;
+    padding: 1rem 1.125rem 1.125rem;
+    border: 1px solid var(--color-rule);
+    background: var(--color-paper);
+  }
+
+  /* Connector into every hop after the first, drawn across the gap. */
+  .work-flow__node + .work-flow__node::before {
+    content: "";
+    position: absolute;
+    top: calc(var(--flow-gap) * -1 - 1px);
+    left: calc(var(--flow-axis) - 1px);
+    width: 1px;
+    height: var(--flow-gap);
+    background: var(--color-steel);
+  }
+
+  .work-flow__label {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: var(--text-lg);
+    line-height: 1.2;
+  }
+
+  .work-flow__detail {
+    font-size: var(--text-sm);
+    color: var(--color-steel);
+  }
+
+  /* Ultra border shown while the packet is at this hop. */
+  .work-flow__ring {
+    position: absolute;
+    inset: -1px;
+    border: 1px solid var(--color-ultra);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .work-flow__packet {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--color-ultra);
+    opacity: 0;
+    pointer-events: none;
+  }
+
   @media (width >= 48rem) {
     .work-row {
       --row-bleed: 1.5rem;
@@ -265,22 +322,45 @@
 
     .work-row__head {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr) auto;
-      grid-template-areas:
-        "title spark mark"
-        "title stack mark";
-      grid-template-rows: auto 1fr;
+      grid-template-areas: "title meta mark";
       column-gap: clamp(2rem, 4vw, 4rem);
       padding-block: 2.25rem;
+    }
+
+    .work-row__meta {
+      padding-top: 0.5rem;
     }
 
     .work-panel__body {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr) 2.75rem;
       column-gap: clamp(2rem, 4vw, 4rem);
+      row-gap: 2.5rem;
       padding-bottom: 3rem;
     }
 
-    .work-panel__aside {
+    .work-panel__links {
       grid-column: 2;
+    }
+
+    .work-flow {
+      grid-column: 1 / -1;
+      --flow-gap: clamp(1.25rem, 3vw, 3rem);
+    }
+
+    .work-flow__hops {
+      flex-direction: row;
+    }
+
+    .work-flow__node {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .work-flow__node + .work-flow__node::before {
+      top: calc(50% - 0.5px);
+      left: calc(var(--flow-gap) * -1 - 1px);
+      width: var(--flow-gap);
+      height: 1px;
     }
   }
 
@@ -289,8 +369,8 @@
       opacity: 1;
     }
 
-    .work-row__head:hover .work-row__spark path {
-      transform: translateX(calc(var(--spark-shift) * -1));
+    .work-row__head:hover .work-route li + li::before {
+      background: var(--color-ultra);
     }
 
     .work-row__head:hover .work-row__mark {
@@ -298,11 +378,10 @@
     }
   }
 
-  /* The global kill switch shortens durations but not delays; drop the panel's delays too. */
+  /* The global kill switch shortens durations but not delays; drop the panel's delay too. */
   @media (prefers-reduced-motion: reduce) {
     .work-row {
       --hide-delay: 0s;
-      --draw-delay: 0s;
     }
   }
 }

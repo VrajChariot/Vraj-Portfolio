@@ -18,8 +18,8 @@ main.js                  Express server: loads data, maps it to view models, ren
 models/                  Mongoose models for projects and experience
 data/profile.js          Name, intro, links, contact form key
 data/skills.js           Skill groups and the patterns used to find evidence for each skill
+data/projectFlows.js     The path one request takes through each project, keyed by project id
 lib/viewModels.js        Maps Mongo documents to template data; links skills to projects and roles
-lib/signature.js         Deterministic waveform path for each project, derived from its title
 views/index.ejs          Page layout
 views/partials/          head, nav, footer, cursor
 views/sections/          hero, about, work, experience, skills, contact

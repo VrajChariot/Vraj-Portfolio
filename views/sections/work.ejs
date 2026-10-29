@@ -7,9 +7,7 @@
     <% } else { %>
         <ul class="work-index mt-12 md:mt-16" data-work-index>
             <% projects.forEach(function (project, index) {
-                const open = index === 0;
-                const sig = project.signature;
-                const sparkInset = sig.width * 0.04; %>
+                const open = index === 0; %>
                 <li id="<%= project.id %>" class="work-row<%= open ? ' is-open' : '' %>" data-work-row>
                     <div class="work-row__head">
                         <h3 class="work-row__title">
@@ -18,14 +16,18 @@
                                 <% if (project.kind) { %><span class="work-row__kind"><%= project.kind %></span><% } %>
                             </button>
                         </h3>
-                        <svg class="work-row__spark" style="--spark-shift: <%= sparkInset %>px" viewBox="<%= sparkInset %> 0 <%= sig.width - sparkInset * 2 %> <%= sig.height %>" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-                            <path d="<%= sig.d %>" vector-effect="non-scaling-stroke" />
-                        </svg>
-                        <% if (project.stack.length) { %>
-                            <ul class="work-row__stack" aria-label="Built with">
-                                <% project.stack.forEach(function (tech) { %><li><%= tech %></li><% }); %>
-                            </ul>
-                        <% } %>
+                        <div class="work-row__meta">
+                            <% if (project.flow) { %>
+                                <ol class="work-route" aria-label="Request path">
+                                    <% project.flow.forEach(function (hop) { %><li><%= hop.label %></li><% }); %>
+                                </ol>
+                            <% } %>
+                            <% if (project.stack.length) { %>
+                                <ul class="work-row__stack" aria-label="Built with">
+                                    <% project.stack.forEach(function (tech) { %><li><%= tech %></li><% }); %>
+                                </ul>
+                            <% } %>
+                        </div>
                         <span class="work-row__mark" aria-hidden="true"></span>
                     </div>
                     <div id="<%= project.id %>-panel" class="work-panel" role="region" aria-labelledby="<%= project.id %>-toggle">
@@ -34,18 +36,29 @@
                                 <div class="work-panel__summary">
                                     <% project.summary.forEach(function (line) { %><p><%= line %></p><% }); %>
                                 </div>
-                                <div class="work-panel__aside">
-                                    <svg class="work-panel__signature" viewBox="0 0 <%= sig.width %> <%= sig.height %>" aria-hidden="true" focusable="false">
-                                        <line x1="0" y1="<%= sig.height / 2 %>" x2="<%= sig.width %>" y2="<%= sig.height / 2 %>" />
-                                        <path d="<%= sig.d %>" pathLength="1" />
-                                    </svg>
-                                    <% if (project.demo || project.github) { %>
-                                        <p class="work-panel__links">
-                                            <% if (project.demo) { %><a href="<%= project.demo %>" target="_blank" rel="noopener">Open live demo</a><% } %>
-                                            <% if (project.github) { %><a href="<%= project.github %>" target="_blank" rel="noopener">View source</a><% } %>
-                                        </p>
-                                    <% } %>
-                                </div>
+                                <% if (project.demo || project.github) { %>
+                                    <p class="work-panel__links">
+                                        <% if (project.demo) { %><a href="<%= project.demo %>" target="_blank" rel="noopener">Open live demo</a><% } %>
+                                        <% if (project.github) { %><a href="<%= project.github %>" target="_blank" rel="noopener">View source</a><% } %>
+                                    </p>
+                                <% } %>
+                                <% if (project.flow) { %>
+                                    <figure class="work-flow" data-flow>
+                                        <figcaption class="work-flow__caption">How a request moves through <%= project.name %></figcaption>
+                                        <div class="work-flow__track" data-flow-track>
+                                            <ol class="work-flow__hops" data-flow-hops>
+                                                <% project.flow.forEach(function (hop) { %>
+                                                    <li class="work-flow__node" data-flow-node>
+                                                        <span class="work-flow__label"><%= hop.label %></span>
+                                                        <span class="work-flow__detail"><%= hop.detail %></span>
+                                                        <span class="work-flow__ring" data-flow-ring aria-hidden="true"></span>
+                                                    </li>
+                                                <% }); %>
+                                            </ol>
+                                            <span class="work-flow__packet" data-flow-packet aria-hidden="true"></span>
+                                        </div>
+                                    </figure>
+                                <% } %>
                             </div>
                         </div>
                     </div>
