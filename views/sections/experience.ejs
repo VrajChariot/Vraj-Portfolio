@@ -62,7 +62,7 @@ const gapLabel = (months) => {
 const fmt = (n) => +n.toFixed(3);
 %>
 <section id="experience" class="xp wrap<%= degrees.length ? ' has-branch' : '' %>" aria-labelledby="experience-title">
-    <h2 id="experience-title" class="heading-section">Experience &amp; education</h2>
+    <h2 id="experience-title" class="heading-section"><%= degrees.length ? 'Experience & education' : 'Experience' %></h2>
 
     <% if (items.length === 0) { %>
         <p class="mt-8 max-w-[62ch] text-lg">My work history is not listed here yet, so <a class="text-ultra underline" href="<%= profile.links.linkedin %>" target="_blank" rel="noopener">read it on LinkedIn</a>.</p>
@@ -166,7 +166,7 @@ const fmt = (n) => +n.toFixed(3);
                             </ul>
                         <% } %>
                     </div>
-                    <% if (note) { %><span class="xp-gap-note" aria-hidden="true"><%= note.label %> between roles</span><% } %>
+                    <% if (note) { %><span class="xp-gap-note" aria-hidden="true"><%= note.label %><%= degrees.length ? ' between roles' : '' %></span><% } %>
                 </li>
             <% }); %>
         </ol>
