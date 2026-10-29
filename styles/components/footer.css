@@ -1,1 +1,18 @@
-/* Footer. */
+/* Footer: closes the deep contact field. */
+.site-footer .wrap {
+  border-color: color-mix(in srgb, var(--color-ultra-pale) 25%, transparent);
+}
+
+.site-footer :focus-visible {
+  outline-color: var(--color-ultra-pale);
+}
+
+.site-footer-top {
+  color: var(--color-paper);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+#colophon:target {
+  color: var(--color-paper);
+}
