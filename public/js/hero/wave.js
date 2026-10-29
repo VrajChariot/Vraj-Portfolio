@@ -4,6 +4,9 @@
 import { createRenderer } from './renderer.js';
 import { fieldShape, restingField, stepField, waveScale } from './signal.js';
 
+// Calm left-to-right drift of the code stream, px per second.
+const STREAM_SPEED = 26;
+
 export function createWave({ hero, canvas, band }) {
   const renderer = createRenderer(canvas);
   let geometry = { width: 0, height: 0, baseline: 0, amplitude: 0, wavelength: 1, spread: 1 };
@@ -29,18 +32,21 @@ export function createWave({ hero, canvas, band }) {
     return fieldShape(field, geometry.spread).energy;
   }
 
-  // progress: { draw 0..1, wake 0..1 } from the intro (1, 1 once settled).
+  // progress: { draw, wake, stream } each 0..1 from the intro (all 1 once settled).
   function render(t, progress) {
     renderer.draw({
       t,
+      width: geometry.width,
       baseline: geometry.baseline,
       amplitude: geometry.amplitude,
       wavelength: geometry.wavelength,
       draw: progress.draw,
       wake: progress.wake,
+      stream: progress.stream,
+      scroll: t * STREAM_SPEED,
       field: fieldShape(field, geometry.spread),
     });
   }
 
-  return { measure, advance, render };
+  return { measure, advance, render, setText: renderer.setText };
 }

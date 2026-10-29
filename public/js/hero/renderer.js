@@ -1,6 +1,7 @@
 // Canvas drawing for the hero waveform. Knows nothing about time or input:
 // it draws whatever frame it is given.
 
+import { createGlyphRenderer } from './glyph-renderer.js';
 import { sampleWave } from './signal.js';
 
 const MAX_DPR = 2;
@@ -13,16 +14,19 @@ const HARMONICS = [
   { lag: 1.8, scale: 0.34, alpha: 0.18 },
 ];
 
-const cssColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const cssValue = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 export function createRenderer(canvas) {
   const ctx = canvas.getContext('2d');
-  const colors = { primary: cssColor('--color-ultra'), harmonic: cssColor('--color-steel') };
+  const colors = { primary: cssValue('--color-ultra'), harmonic: cssValue('--color-steel'), glyph: cssValue('--color-steel') };
+  const glyphs = createGlyphRenderer(ctx, colors, cssValue('--font-mono'));
   let width = 0;
   let height = 0;
+  let dpr = 1;
+  let primary = new Float32Array(0);
 
   function resize(nextWidth, nextHeight) {
-    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
     width = nextWidth;
     height = nextHeight;
     canvas.width = Math.round(width * dpr);
@@ -30,6 +34,9 @@ export function createRenderer(canvas) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
+    const points = Math.ceil(width / PRIMARY_STEP) + 2;
+    primary = new Float32Array(points);
+    glyphs.resize(points);
   }
 
   function trace(frame, step, t, scale) {
@@ -44,10 +51,34 @@ export function createRenderer(canvas) {
     ctx.stroke();
   }
 
-  // frame: { t, baseline, amplitude, wavelength, draw 0..1, wake 0..1, field }
+  // Samples the primary line into `primary`, shared by the stroke and the glyphs.
+  function samplePrimary(frame, end) {
+    const amplitude = frame.amplitude * frame.wake;
+    let count = 0;
+    for (let x = 0; x < end + PRIMARY_STEP; x += PRIMARY_STEP) {
+      primary[count++] = frame.baseline + amplitude * sampleWave(Math.min(x, end), frame.t, frame.wavelength, frame.field);
+    }
+    return count;
+  }
+
+  function strokePrimary(count, end) {
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = colors.primary;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, primary[0]);
+    for (let i = 1; i < count; i++) ctx.lineTo(Math.min(i * PRIMARY_STEP, end), primary[i]);
+    ctx.stroke();
+  }
+
+  // frame: { t, width, baseline, amplitude, wavelength, draw 0..1, wake 0..1, stream 0..1, scroll, field }
   function draw(frame) {
     ctx.clearRect(0, 0, width, height);
     if (frame.draw <= 0) return;
+
+    const end = width * frame.draw;
+    const count = samplePrimary(frame, end);
+    glyphs.place(primary, count, PRIMARY_STEP, end, frame);
 
     ctx.strokeStyle = colors.harmonic;
     ctx.lineWidth = 1;
@@ -56,11 +87,10 @@ export function createRenderer(canvas) {
       trace(frame, HARMONIC_STEP, frame.t - harmonic.lag, harmonic.scale);
     }
 
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = colors.primary;
-    ctx.lineWidth = 2;
-    trace(frame, PRIMARY_STEP, frame.t, 1);
+    glyphs.knockout(dpr);
+    strokePrimary(count, end);
+    glyphs.fill(dpr);
   }
 
-  return { resize, draw };
+  return { resize, draw, setText: glyphs.setText };
 }
