@@ -1,21 +1,57 @@
-<section id="work" class="wrap py-24" aria-labelledby="work-title">
+<section id="work" class="wrap py-24 md:py-32" aria-labelledby="work-title">
     <h2 id="work-title" class="heading-section">Selected work</h2>
-    <ol class="mt-12 space-y-12">
-        <% projects.forEach(function (project) { %>
-            <li id="<%= project.id %>">
-                <h3 class="font-display text-3xl"><%= project.name %></h3>
-                <% if (project.kind) { %><p class="text-steel"><%= project.kind %></p><% } %>
-                <% project.summary.forEach(function (line) { %>
-                    <p class="mt-3 max-w-[62ch]"><%= line %></p>
-                <% }); %>
-                <ul class="mt-4 flex flex-wrap gap-3 text-sm text-steel">
-                    <% project.stack.forEach(function (tech) { %><li><%= tech %></li><% }); %>
-                </ul>
-                <p class="mt-4 flex gap-6">
-                    <% if (project.demo) { %><a class="text-ultra underline" href="<%= project.demo %>" target="_blank" rel="noopener">Open live demo</a><% } %>
-                    <% if (project.github) { %><a class="text-ultra underline" href="<%= project.github %>" target="_blank" rel="noopener">View source</a><% } %>
-                </p>
-            </li>
-        <% }); %>
-    </ol>
+    <% if (projects.length === 0) { %>
+        <p class="mt-10 max-w-[62ch] text-lg text-steel">
+            No projects are available right now. <a class="text-ultra underline underline-offset-4" href="<%= profile.links.github %>" target="_blank" rel="noopener">See what I'm building on GitHub</a>.
+        </p>
+    <% } else { %>
+        <ul class="work-index mt-12 md:mt-16" data-work-index>
+            <% projects.forEach(function (project, index) {
+                const open = index === 0;
+                const sig = project.signature;
+                const sparkInset = sig.width * 0.04; %>
+                <li id="<%= project.id %>" class="work-row<%= open ? ' is-open' : '' %>" data-work-row>
+                    <div class="work-row__head">
+                        <h3 class="work-row__title">
+                            <button type="button" id="<%= project.id %>-toggle" class="work-row__toggle" aria-expanded="<%= open %>" aria-controls="<%= project.id %>-panel" data-cursor="<%= open ? 'Close' : 'Open' %>">
+                                <span class="work-row__name"><%= project.name %></span>
+                                <% if (project.kind) { %><span class="work-row__kind"><%= project.kind %></span><% } %>
+                            </button>
+                        </h3>
+                        <svg class="work-row__spark" style="--spark-shift: <%= sparkInset %>px" viewBox="<%= sparkInset %> 0 <%= sig.width - sparkInset * 2 %> <%= sig.height %>" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                            <path d="<%= sig.d %>" vector-effect="non-scaling-stroke" />
+                        </svg>
+                        <% if (project.stack.length) { %>
+                            <ul class="work-row__stack" aria-label="Built with">
+                                <% project.stack.forEach(function (tech) { %><li><%= tech %></li><% }); %>
+                            </ul>
+                        <% } %>
+                        <span class="work-row__mark" aria-hidden="true"></span>
+                    </div>
+                    <div id="<%= project.id %>-panel" class="work-panel" role="region" aria-labelledby="<%= project.id %>-toggle">
+                        <div class="work-panel__clip">
+                            <div class="work-panel__body">
+                                <div class="work-panel__summary">
+                                    <% project.summary.forEach(function (line) { %><p><%= line %></p><% }); %>
+                                </div>
+                                <div class="work-panel__aside">
+                                    <svg class="work-panel__signature" viewBox="0 0 <%= sig.width %> <%= sig.height %>" aria-hidden="true" focusable="false">
+                                        <line x1="0" y1="<%= sig.height / 2 %>" x2="<%= sig.width %>" y2="<%= sig.height / 2 %>" />
+                                        <path d="<%= sig.d %>" pathLength="1" />
+                                    </svg>
+                                    <% if (project.demo || project.github) { %>
+                                        <p class="work-panel__links">
+                                            <% if (project.demo) { %><a href="<%= project.demo %>" target="_blank" rel="noopener" data-cursor="Open">Open live demo</a><% } %>
+                                            <% if (project.github) { %><a href="<%= project.github %>" target="_blank" rel="noopener" data-cursor="Open">View source</a><% } %>
+                                        </p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            <% }); %>
+        </ul>
+        <script type="module" src="/js/sections/work.js"></script>
+    <% } %>
 </section>

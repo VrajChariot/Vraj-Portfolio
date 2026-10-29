@@ -1,1 +1,308 @@
 /* Work: project index rows, expansion, signature waveforms. */
+@layer components {
+  .work-index {
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .work-row {
+    --row-bleed: 1rem;
+    --hide-delay: 0.7s;
+    --draw-delay: 0.2s;
+    position: relative;
+    border-bottom: 1px solid var(--color-rule);
+    isolation: isolate;
+    scroll-margin-top: 5rem;
+  }
+
+  /* Wash behind the open row (and the hovered head): bleeds into the gutter so text stays aligned. */
+  .work-row::before {
+    content: "";
+    position: absolute;
+    inset: 0 calc(var(--row-bleed) * -1);
+    z-index: -1;
+    background: var(--color-paper-deep);
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-in-out-quart);
+  }
+
+  .work-row.is-open::before {
+    opacity: 1;
+  }
+
+  .work-row__head {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "title mark"
+      "spark spark"
+      "stack stack";
+    column-gap: 1.5rem;
+    row-gap: 1rem;
+    margin-inline: calc(var(--row-bleed) * -1);
+    padding: 1.75rem var(--row-bleed);
+  }
+
+  /* The whole head (gutter included) is the hit area; focus is drawn around it rather than the bare text. */
+  .work-row__head:has(.work-row__toggle:focus-visible) {
+    outline: 2px solid var(--color-ultra);
+    outline-offset: -2px;
+  }
+
+  .work-row__title {
+    grid-area: title;
+  }
+
+  .work-row__toggle {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 2.75rem;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .work-row__toggle::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  .work-row__toggle:focus-visible {
+    outline: none;
+  }
+
+  .work-row__name {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    overflow-wrap: anywhere;
+  }
+
+  .work-row__kind {
+    font-size: var(--text-lg);
+    line-height: 1.4;
+    color: var(--color-steel);
+    max-width: 40ch;
+  }
+
+  .work-row__spark {
+    grid-area: spark;
+    width: 100%;
+    height: 2.5rem;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .work-row__spark path {
+    fill: none;
+    stroke: var(--color-ultra);
+    stroke-width: 1.25;
+    stroke-linejoin: round;
+    transition: transform 0.7s var(--ease-in-out-quart);
+  }
+
+  .work-row__stack {
+    grid-area: stack;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    font-size: var(--text-sm);
+    color: var(--color-steel);
+    pointer-events: none;
+  }
+
+  /* Plus that turns into a minus: two hairlines in a small pill-shaped control. */
+  .work-row__mark {
+    grid-area: mark;
+    display: none;
+    position: relative;
+    align-self: start;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 9999px;
+    pointer-events: none;
+    transition: border-color 0.4s var(--ease-in-out-quart);
+  }
+
+  .js .work-row__mark {
+    display: block;
+  }
+
+  .work-row__mark::before,
+  .work-row__mark::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.875rem;
+    height: 1.5px;
+    margin: -0.75px 0 0 -0.4375rem;
+    background: var(--color-ink);
+    transition: transform 0.5s var(--ease-in-out-quart);
+  }
+
+  .work-row__mark::after {
+    transform: rotate(90deg);
+  }
+
+  .work-row.is-open .work-row__mark {
+    border-color: var(--color-ultra);
+  }
+
+  .work-row.is-open .work-row__mark::after {
+    transform: rotate(0deg);
+  }
+
+  /* Expansion: grid rows 0fr → 1fr so the panel height animates without measuring. */
+  .work-panel {
+    display: grid;
+    grid-template-rows: 1fr;
+  }
+
+  .js .work-panel {
+    transition:
+      grid-template-rows 0.7s var(--ease-in-out-quart),
+      opacity 0.5s var(--ease-in-out-quart),
+      visibility 0s linear 0s;
+  }
+
+  .js .work-row:not(.is-open) .work-panel {
+    grid-template-rows: 0fr;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      grid-template-rows 0.7s var(--ease-in-out-quart),
+      opacity 0.3s var(--ease-in-out-quart),
+      visibility 0s linear var(--hide-delay);
+  }
+
+  .work-row.is-instant .work-panel,
+  .work-row.is-instant::before {
+    transition: none;
+  }
+
+  .work-panel__clip {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .work-panel__body {
+    display: grid;
+    gap: 2rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .work-panel__summary {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    max-width: 62ch;
+    font-size: var(--text-lg);
+    line-height: 1.55;
+  }
+
+  .work-panel__signature {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .work-panel__signature line {
+    stroke: var(--color-rule);
+    stroke-width: 1;
+  }
+
+  .work-panel__signature path {
+    fill: none;
+    stroke: var(--color-ultra);
+    stroke-width: 1.75;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .js .work-row:not(.is-open) .work-panel__signature path {
+    stroke-dashoffset: 1;
+  }
+
+  .js .work-row.is-open .work-panel__signature path {
+    transition: stroke-dashoffset 1.6s var(--ease-out-expo) var(--draw-delay);
+  }
+
+  .work-panel__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.75rem;
+    margin-top: 1rem;
+  }
+
+  .work-panel__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--color-ultra);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.3em;
+    transition: text-decoration-thickness 0.3s var(--ease-in-out-quart);
+  }
+
+  .work-panel__links a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  @media (width >= 48rem) {
+    .work-row {
+      --row-bleed: 1.5rem;
+    }
+
+    .work-row__head {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr) auto;
+      grid-template-areas:
+        "title spark mark"
+        "title stack mark";
+      grid-template-rows: auto 1fr;
+      column-gap: clamp(2rem, 4vw, 4rem);
+      padding-block: 2.25rem;
+    }
+
+    .work-panel__body {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr) 2.75rem;
+      column-gap: clamp(2rem, 4vw, 4rem);
+      padding-bottom: 3rem;
+    }
+
+    .work-panel__aside {
+      grid-column: 2;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .work-row:has(.work-row__head:hover)::before {
+      opacity: 1;
+    }
+
+    .work-row__head:hover .work-row__spark path {
+      transform: translateX(calc(var(--spark-shift) * -1));
+    }
+
+    .work-row__head:hover .work-row__mark {
+      border-color: var(--color-ultra);
+    }
+  }
+
+  /* The global kill switch shortens durations but not delays; drop the panel's delays too. */
+  @media (prefers-reduced-motion: reduce) {
+    .work-row {
+      --hide-delay: 0s;
+      --draw-delay: 0s;
+    }
+  }
+}
