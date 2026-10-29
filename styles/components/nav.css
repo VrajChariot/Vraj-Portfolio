@@ -53,6 +53,10 @@ html.js .site-nav:not(.is-visible) {
   transition: transform 0.4s var(--ease-in-out-quart);
 }
 
+.site-nav.is-deep :focus-visible {
+  outline-color: var(--color-ultra-pale);
+}
+
 .site-nav.is-deep .site-nav-link::after {
   background: var(--color-ultra-pale);
 }
