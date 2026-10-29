@@ -5,9 +5,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { PorfoliolData } from './models/ProjectData.js';
 import { ExpData } from './models/ExpData.js';
+import { EduData } from './models/EduData.js';
 import { profile } from './data/profile.js';
 import { skillGroups } from './data/skills.js';
-import { toProjectView, toExperienceView, toEvidenceSources, withSkillEvidence } from './lib/viewModels.js';
+import { toProjectView, toExperienceView, toEducationView, toEvidenceSources, withSkillEvidence } from './lib/viewModels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,17 +35,20 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.get('/', async (req, res) => {
-  const [projectDocs, experienceDocs] = await Promise.all([
+  const [projectDocs, experienceDocs, educationDocs] = await Promise.all([
     PorfoliolData.find({}).sort({ _id: -1 }).lean(),
     ExpData.find({}).sort({ _id: -1 }).lean(),
+    EduData.find({}).sort({ _id: -1 }).lean(),
   ]);
   const projects = projectDocs.map(toProjectView);
   const experience = experienceDocs.map(toExperienceView);
+  const education = educationDocs.map(toEducationView);
 
   res.render('index', {
     profile,
     projects,
     experience,
+    education,
     skillGroups: withSkillEvidence(skillGroups, toEvidenceSources(projects, experience, profile.colophon)),
   });
 });
