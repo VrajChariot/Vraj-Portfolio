@@ -7,7 +7,6 @@ import { PorfoliolData } from './models/ProjectData.js';
 import { ExpData } from './models/ExpData.js';
 import { profile } from './data/profile.js';
 import { skillGroups } from './data/skills.js';
-import { projectFlows } from './data/projectFlows.js';
 import { toProjectView, toExperienceView, toEvidenceSources, withSkillEvidence } from './lib/viewModels.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -39,7 +38,7 @@ app.get('/', async (req, res) => {
     PorfoliolData.find({}).sort({ _id: -1 }).lean(),
     ExpData.find({}).sort({ _id: -1 }).lean(),
   ]);
-  const projects = projectDocs.map((doc) => toProjectView(doc, projectFlows));
+  const projects = projectDocs.map(toProjectView);
   const experience = experienceDocs.map(toExperienceView);
 
   res.render('index', {
