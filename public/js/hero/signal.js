@@ -33,11 +33,14 @@ export function carrier(u, t) {
   );
 }
 
+// Strength of the pointer disturbance at `x` px, 0 when the field is at rest.
+export const bumpAt = (x, field) => field.energy * gaussian(x - field.x, field.spread);
+
 // Vertical offset of the line at `x` px, in multiples of the base amplitude.
 // `wavelength` maps px to carrier cycles; `field` is the pointer disturbance.
 export function sampleWave(x, t, wavelength, field) {
   const u = x / wavelength;
-  const bump = field.energy * gaussian(x - field.x, field.spread);
+  const bump = bumpAt(x, field);
   const voiced = carrier(u, t) * envelope(u, t) * (1 + 2.4 * bump);
   const chirp = bump * Math.sin(TAU * u * 3.1 - t * 11);
   return voiced + chirp;

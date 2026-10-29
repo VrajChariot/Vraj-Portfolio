@@ -1,6 +1,7 @@
 // Hero entry: wires the waveform, pointer input, readout, intro and lifecycle.
 
 import { prefersReducedMotion, signalIntroDone } from '../core/motion.js';
+import { loadSource } from './glyphs.js';
 import { introProgress, playIntro } from './intro.js';
 import { restoreKerning } from './kerning.js';
 import { runWhileVisible } from './lifecycle.js';
@@ -9,7 +10,9 @@ import { createReadout } from './readout.js';
 import { readoutHz } from './signal.js';
 import { createWave } from './wave.js';
 
-const SETTLED = { draw: 1, wake: 1 };
+const SETTLED = { draw: 1, wake: 1, stream: 1 };
+// The stream shows the code that draws the wave.
+const SOURCE_URL = new URL('./signal.js', import.meta.url);
 // A moment in the signal that reads well as a single still frame.
 const STILL_TIME = 4.2;
 
@@ -20,12 +23,20 @@ function init(hero) {
 
   hero.querySelectorAll('.hero-word').forEach(restoreKerning);
 
+  const drawStill = () => wave.render(STILL_TIME, SETTLED);
   const resizer = new ResizeObserver(() => {
     wave.measure();
-    if (reduced) wave.render(STILL_TIME, SETTLED);
+    if (reduced) drawStill();
   });
   resizer.observe(hero);
   resizer.observe(band);
+
+  loadSource(SOURCE_URL).then((source) => {
+    if (!source) return;
+    wave.setText(source).then(() => {
+      if (reduced) drawStill();
+    });
+  });
 
   if (reduced) {
     signalIntroDone();
