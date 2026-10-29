@@ -1,4 +1,9 @@
-<footer class="wrap py-10 text-sm text-steel">
-    <p>© <%= new Date().getFullYear() %> <%= profile.name %></p>
-    <p id="colophon"><%= profile.colophon %></p>
+<footer class="site-footer bg-ultra-deep text-ultra-pale" data-theme="deep">
+    <div class="wrap">
+        <div class="site-footer-inner flex flex-col gap-4 border-t py-8 text-sm md:flex-row md:items-baseline md:justify-between">
+            <p>&copy; <%= new Date().getFullYear() %> <%= profile.name %></p>
+            <p id="colophon" class="max-w-[62ch]"><%= profile.colophon %></p>
+            <a href="#hero" class="site-footer-top">Back to top</a>
+        </div>
+    </div>
 </footer>

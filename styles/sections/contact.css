@@ -1,1 +1,94 @@
-/* Contact: inverted ultra field, form, toast. */
+/* Contact: inverted ultra field, form, links. */
+.contact-email {
+  font-size: clamp(1.75rem, 5.2vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: var(--color-ultra-pale);
+}
+
+.contact :focus-visible {
+  outline-color: var(--color-ultra-pale);
+}
+
+.contact-pill {
+  padding: 0.625rem 1.25rem;
+  border: 1px solid var(--color-ultra-pale);
+  border-radius: 9999px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-paper);
+  transition:
+    background-color 0.3s var(--ease-in-out-quart),
+    color 0.3s var(--ease-in-out-quart),
+    transform 0.4s var(--ease-out-expo);
+}
+
+.contact-pill:hover,
+.contact-pill--solid {
+  background: var(--color-paper);
+  border-color: var(--color-paper);
+  color: var(--color-ultra-deep);
+}
+
+.contact-pill--solid:hover {
+  background: var(--color-ultra-pale);
+  border-color: var(--color-ultra-pale);
+}
+
+.contact-pill:disabled {
+  opacity: 0.6;
+}
+
+.contact-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.contact-field label {
+  font-size: var(--text-sm);
+  color: var(--color-ultra-pale);
+}
+
+.contact-field input,
+.contact-field textarea {
+  width: 100%;
+  padding: 0.5rem 0;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ultra-pale) 55%, transparent);
+  background: transparent;
+  color: var(--color-paper);
+  font-size: var(--text-lg);
+  resize: vertical;
+  transition: border-color 0.3s linear;
+}
+
+.contact-field input:focus-visible,
+.contact-field textarea:focus-visible {
+  outline: none;
+  border-bottom: 2px solid var(--color-paper);
+  margin-bottom: -1px;
+}
+
+.contact-status[data-state="sent"] {
+  color: var(--color-paper);
+}
+
+.contact-status[data-state="error"] {
+  color: var(--color-paper);
+  max-width: 48ch;
+}
+
+.contact-links a {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--color-ultra-pale) 50%, transparent);
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 0.3s linear;
+}
+
+.contact-links a:hover {
+  text-decoration-color: var(--color-paper);
+}

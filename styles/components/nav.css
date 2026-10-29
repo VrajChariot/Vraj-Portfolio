@@ -1,1 +1,79 @@
 /* Navigation bar and mobile menu. */
+.site-nav {
+  color: var(--color-ink);
+  border-bottom: 1px solid transparent;
+  transition:
+    transform 0.5s var(--ease-in-out-quart),
+    opacity 0.6s var(--ease-out-expo),
+    background-color 0.3s linear,
+    border-color 0.3s linear,
+    color 0.3s linear;
+}
+
+html.js .site-nav:not(.is-visible) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.site-nav.is-scrolled {
+  background: var(--color-paper);
+  border-bottom-color: var(--color-rule);
+}
+
+.site-nav.is-hidden {
+  transform: translateY(-100%);
+}
+
+.site-nav.is-deep {
+  color: var(--color-paper);
+}
+
+.site-nav.is-deep.is-scrolled {
+  background: var(--color-ultra-deep);
+  border-bottom-color: color-mix(in srgb, var(--color-ultra-pale) 30%, transparent);
+}
+
+.site-nav-link,
+.nav-menu-link {
+  position: relative;
+  text-decoration: none;
+}
+
+.site-nav-link::after,
+.nav-menu-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: var(--color-ultra);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s var(--ease-in-out-quart);
+}
+
+.site-nav.is-deep :focus-visible {
+  outline-color: var(--color-ultra-pale);
+}
+
+.site-nav.is-deep .site-nav-link::after {
+  background: var(--color-ultra-pale);
+}
+
+.site-nav-link:hover::after,
+.site-nav-link[aria-current]::after,
+.nav-menu-link[aria-current]::after {
+  transform: scaleX(1);
+}
+
+.site-nav-toggle {
+  padding: 0.375rem 0.875rem;
+  border: 1px solid currentColor;
+  border-radius: 9999px;
+}
+
+.nav-menu {
+  color: var(--color-ink);
+  overflow-y: auto;
+}

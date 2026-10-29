@@ -1,11 +1,33 @@
-<header class="fixed inset-x-0 top-0 z-50">
+<%
+    const navLinks = [
+        { href: '#work', label: 'Work' },
+        { href: '#experience', label: 'Experience' },
+        { href: '#skills', label: 'Skills' },
+        { href: '#contact', label: 'Contact' },
+    ];
+%>
+<header class="site-nav fixed inset-x-0 top-0 z-50" data-nav>
     <nav class="wrap flex h-16 items-center justify-between" aria-label="Primary">
-        <a href="#hero" class="font-display text-lg font-medium"><%= profile.name %></a>
-        <ul class="flex gap-6 text-sm">
-            <li><a href="#work">Work</a></li>
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#skills">Skills</a></li>
-            <li><a href="#contact">Contact</a></li>
+        <a href="#hero" class="site-nav-name font-display text-lg font-medium"><%= profile.name %></a>
+        <ul class="hidden items-center gap-8 text-sm md:flex">
+            <% navLinks.forEach((link) => { %>
+            <li><a class="site-nav-link" href="<%= link.href %>" data-nav-link><%= link.label %></a></li>
+            <% }) %>
+            <li><a class="site-nav-link" href="<%= profile.links.cv %>" target="_blank" rel="noopener">CV<span class="sr-only"> (opens in a new tab)</span></a></li>
         </ul>
+        <button type="button" class="site-nav-toggle text-sm md:hidden" aria-expanded="false" aria-controls="nav-menu" data-nav-toggle>Menu</button>
     </nav>
 </header>
+<div id="nav-menu" class="nav-menu fixed inset-0 z-60 bg-paper md:hidden" role="dialog" aria-modal="true" aria-label="Menu" hidden data-nav-menu>
+    <div class="wrap flex h-16 items-center justify-between">
+        <span class="font-display text-lg font-medium"><%= profile.name %></span>
+        <button type="button" class="text-sm" data-nav-close>Close</button>
+    </div>
+    <ul class="wrap mt-10 grid gap-2">
+        <% navLinks.forEach((link) => { %>
+        <li><a class="nav-menu-link font-display text-5xl font-medium" href="<%= link.href %>" data-nav-link><%= link.label %></a></li>
+        <% }) %>
+        <li><a class="nav-menu-link font-display text-5xl font-medium" href="<%= profile.links.cv %>" target="_blank" rel="noopener">CV<span class="sr-only"> (opens in a new tab)</span></a></li>
+    </ul>
+</div>
+<script type="module" src="/js/nav.js"></script>

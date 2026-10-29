@@ -1,1 +1,94 @@
 /* Custom cursor (fine pointers only). */
+html.has-cursor,
+html.has-cursor * {
+  cursor: none;
+}
+
+html.has-cursor input:not([type="checkbox"], [type="radio"], [type="submit"], [type="button"]),
+html.has-cursor textarea,
+html.has-cursor select {
+  cursor: text;
+}
+
+.cursor {
+  --cursor-fg: var(--color-ultra);
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+
+.cursor[data-visible="true"] {
+  opacity: 1;
+}
+
+.cursor[data-mode="text"] {
+  opacity: 0;
+}
+
+.cursor[data-deep="true"] {
+  --cursor-fg: var(--color-ultra-pale);
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--cursor-fg);
+}
+
+.cursor-ring {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--cursor-fg);
+  border-radius: 9999px;
+  transition:
+    width 0.35s var(--ease-in-out-quart),
+    height 0.35s var(--ease-in-out-quart),
+    background-color 0.35s var(--ease-in-out-quart),
+    border-color 0.2s linear;
+}
+
+.cursor.is-pressed .cursor-ring {
+  width: 28px;
+  height: 28px;
+}
+
+.cursor[data-mode="label"] .cursor-ring {
+  width: auto;
+  height: 32px;
+  padding-inline: 0.875rem;
+  background: var(--cursor-fg);
+}
+
+.cursor[data-mode="label"] .cursor-dot {
+  opacity: 0;
+}
+
+.cursor-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--color-paper);
+}
+
+.cursor[data-deep="true"] .cursor-label {
+  color: var(--color-ultra-deep);
+}
+
+.cursor:not([data-mode="label"]) .cursor-label {
+  display: none;
+}
