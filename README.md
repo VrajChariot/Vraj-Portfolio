@@ -1,140 +1,67 @@
-# 🌟 Vraj Shah - Full-Stack Developer Portfolio
+# Vraj Shah, portfolio
 
-Welcome to the repository for **Vraj Shah's Full-Stack Developer Portfolio**! This project showcases my skills, experience, and projects as a full-stack developer. It is built with modern web technologies and designed to leave a lasting impression.
+Personal site of Vraj Shah, AI engineer and full-stack developer. Live at [vrajdev.vercel.app](https://vrajdev.vercel.app/).
 
----
+Projects and experience are stored in MongoDB and rendered server-side with EJS. Styling is Tailwind CSS v4; client behaviour is plain ES modules with no bundler and no front-end dependencies.
 
-## 🚀 Features
+## Stack
 
-- **Responsive Design**: Fully responsive and optimized for all devices.
-- **Dynamic Content**: Projects and experience sections are dynamically rendered from a MongoDB database.
-- **Interactive Animations**: Smooth animations and hover effects for an engaging user experience.
-- **Tech Stack Highlights**: Showcases skills with animated skill pills.
-- **Contact Form**: Integrated contact form with smooth submission feedback.
-- **Particles & Effects**: Interactive particle effects for a modern touch.
-- **Deployed on Vercel**: Fast and reliable hosting with Vercel.
+- Node.js, Express 5, EJS
+- MongoDB via Mongoose
+- Tailwind CSS v4 (CSS-first config)
+- Vercel (hosting and analytics)
 
----
+## Structure
 
-## 🛠️ Tech Stack
-
-- **Frontend**: 
-  - HTML5, CSS3, Tailwind CSS
-  - EJS (Embedded JavaScript Templates)
-- **Backend**: 
-  - Node.js, Express.js
-- **Database**: 
-  - MongoDB (Mongoose ODM)
-- **Deployment**: 
-  - Vercel
-- **Other Tools**: 
-  - Nodemon, dotenv
-
----
-
-## 📂 Project Structure
-```bash
-vraj-portfolio/
-├── .env                 # Environment variables (not included in the repo)
-├── .gitignore           # Files and directories to ignore in Git
-├── .vercel/             # Vercel configuration (auto-generated)
-├── main.js              # Main Express server file
-├── models/              # Mongoose schemas and models
-│   ├── ExpData.js       # Experience schema/model
-│   └── ProjectData.js   # Project schema/model
-├── package-lock.json    # Exact versions of dependencies
-├── package.json         # Project metadata and dependencies
-├── public/              # Static assets (CSS, images, client-side JS)
-│   ├── input.css        # Tailwind CSS input file (or source CSS)
-│   └── output.css       # Compiled Tailwind CSS (or general CSS)
-├── tailwind.config.js   # Tailwind CSS configuration
-├── views/               # EJS templates (or other view engine files)
-│   └── index.ejs        # Main portfolio page template
-└── vercel.json          # Vercel deployment configuration
+```text
+main.js                  Express server: loads data, maps it to view models, renders the page
+models/                  Mongoose models for projects and experience
+data/profile.js          Name, intro, links, contact form key
+data/skills.js           Skill groups and the patterns used to find evidence for each skill
+lib/viewModels.js        Maps Mongo documents to template data; links skills to projects and roles
+lib/signature.js         Deterministic waveform path for each project, derived from its title
+views/index.ejs          Page layout
+views/partials/          head, nav, footer, cursor
+views/sections/          hero, about, work, experience, skills, contact
+styles/input.css         Tailwind entry; imports tokens, base, and one file per section/component
+styles/tokens.css        Design tokens (colour, type, easing); the default palette is disabled
+public/js/core/          Shared motion helpers and the intro contract
+public/js/               Section and component scripts, one module per responsibility
+public/output.css        Compiled CSS (committed, Vercel serves it as-is)
 ```
 
+## Setup
 
----
-
-## 🌐 Live Demo
-
-Check out the live version of the portfolio here: [vrajdev.vercel.app](https://vrajdev.vercel.app/)
-
----
-
-## ⚙️ Setup Instructions
-
-Follow these steps to set up the project locally:
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/VrajChariot/vraj-portfolio.git
-cd vraj-portfolio
-```
-### 2. Install Dependencies
 ```bash
 npm install
 ```
-### 3. Configure Environment Variables
-```bash
-MONGODB_URI = <your_mongodb_connection_string>
-PORT = 8000
-```
-### 4. Start the Development Server
-```bash
-npm run dev
-```
-The server will start at http://localhost:8000
 
----
-## 📦 Deployment
+Create `.env`:
 
-This project is deployed on Vercel. To deploy it yourself:
-
-### 1. Install the Vercel CLI:
 ```bash
-npm install -g vercel
+MONGODB_URI=<your MongoDB connection string>
+PORT=8000
 ```
-### 2. Deploy the project:
+
+## Develop
+
+```bash
+npm run watch:css   # rebuild public/output.css on change
+npm run dev         # server with reload on http://localhost:8000
+```
+
+Run `npm run build` before committing so `public/output.css` matches the templates.
+
+## Deploy
+
+Vercel builds `main.js` with `@vercel/node` (see `vercel.json`). Set `MONGODB_URI` in the project settings, then:
+
 ```bash
 vercel
 ```
----
 
-## 🖼️ Demo Video
+## Contact
 
-**(Link to your demo video will go here - e.g., a YouTube link, or an embedded GIF/video if your Markdown host supports it)**
-
-The video showcases:
-* ### 🌟 Hero Section
-* ### 📂 Projects Section
-* ### 🏢 Experience Section
-
-## 🛡️ Security
-
-* **Environment Variables**: Sensitive information like database credentials and API keys are managed using a `.env` file which is not committed to version control (and is listed in `.gitignore`). Ensure you create your own `.env` file based on a provided `.env.example` if available.
-* **MongoDB**: Ensure your MongoDB Atlas cluster (or other MongoDB instance) is secured with strong credentials and that IP whitelisting is configured to only allow access from trusted sources (like your Vercel deployment IPs and your development machine).
-
-## 🤝 Contributing
-
-Contributions are welcome! If you'd like to improve this portfolio, please feel free to fork the repository, make your changes, and submit a pull request.
-
-If you plan to make significant changes, please open an issue first to discuss what you would like to change.
-
-## 📧 Contact
-
-Feel free to reach out to me via:
-
-* **Email**: [vraj0410shah@gmail.com](mailto:vraj0410shah@gmail.com)
-* **LinkedIn**: [linkedin.com/in/vrajshah04](https://www.linkedin.com/in/vrajshah04)
-* **GitHub**: [github.com/VrajChariot](https://github.com/VrajChariot)
-
-
-## ❤️ Acknowledgments
-
-* [Tailwind CSS](https://tailwindcss.com/) - For the amazing utility-first CSS framework.
-* [Vercel](https://vercel.com/) - For seamless deployment.
-* [MongoDB](https://www.mongodb.com/) - For the robust database solution.
-* [Express.js](https://expressjs.com/) - For the web application framework.
-* [Node.js](https://nodejs.org/) - For the JavaScript runtime environment.
-
+- Email: [vraj0410shah@gmail.com](mailto:vraj0410shah@gmail.com)
+- LinkedIn: [linkedin.com/in/vrajshah04](https://www.linkedin.com/in/vrajshah04)
+- GitHub: [github.com/VrajChariot](https://github.com/VrajChariot)
