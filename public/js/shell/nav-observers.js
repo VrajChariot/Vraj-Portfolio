@@ -1,8 +1,7 @@
 // Scroll-linked nav state: current section, deep-theme overlap, scrolled state and page progress.
 
 export function observeCurrentSection(links) {
-  const byId = new Map(links.map((link) => [link.getAttribute('href').slice(1), link]));
-  const sections = [...byId.keys()].map((id) => document.getElementById(id)).filter(Boolean);
+  const sections = [...document.querySelectorAll('main > section[id]')];
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
