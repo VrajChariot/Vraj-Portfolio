@@ -47,11 +47,16 @@ export function observeDeepOverlap(nav) {
 // hairline fills with reading progress.
 export function trackScroll(nav) {
   let ticking = false;
+  let range = 0;
+
+  // Reading scrollHeight forces layout, so measure once and again on resize instead of every frame.
+  const measure = () => {
+    range = document.documentElement.scrollHeight - window.innerHeight;
+  };
 
   const update = () => {
     ticking = false;
     const y = window.scrollY;
-    const range = document.documentElement.scrollHeight - window.innerHeight;
     nav.classList.toggle('is-scrolled', y > 8);
     nav.style.setProperty('--nav-progress', range > 0 ? Math.min(1, y / range).toFixed(4) : '0');
   };
@@ -63,6 +68,10 @@ export function trackScroll(nav) {
   };
 
   window.addEventListener('scroll', schedule, { passive: true });
-  window.addEventListener('resize', schedule, { passive: true });
+  window.addEventListener('resize', () => {
+    measure();
+    schedule();
+  }, { passive: true });
+  measure();
   update();
 }
